@@ -1,6 +1,8 @@
 import sqlite3
 import time
+# ### NOVO ### Adicionado 'import pytz' para lidar com fusos horários
 from datetime import datetime
+import pytz 
 from flask import Flask, render_template, request, g, redirect, url_for, flash
 import re 
 import math
@@ -9,6 +11,18 @@ import math
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'uma_chave_secreta_muito_segura' 
 DATABASE = 'estacionamento.db' 
+
+# ### NOVO ### Definição do Fuso Horário Brasileiro
+# Isso garante que o servidor na nuvem (que usa UTC) saiba que estamos no Brasil.
+BR_TZ = pytz.timezone('America/Sao_Paulo')
+
+# ### NOVO ### Função Ajudante para pegar a hora certa
+def obter_hora_br():
+    """Retorna a data e hora atual no fuso de SP, pronta para cálculos."""
+    # Pega a hora atual no fuso correto e remove a informação de fuso (tzinfo=None)
+    # para facilitar os cálculos de subtração com as datas salvas no banco.
+    return datetime.now(BR_TZ).replace(tzinfo=None)
+
 
 # --- 2. Funções de Conexão com o Banco de Dados ---
 
@@ -65,7 +79,8 @@ def calcular_tempo_e_valor(hora_entrada_str, hora_saida_str=None):
     """Calcula a diferença de tempo e o valor a pagar."""
     
     if hora_saida_str is None:
-        hora_saida_dt = datetime.now()
+        # ### ALTERADO ### Usa a nossa função BR em vez de datetime.now()
+        hora_saida_dt = obter_hora_br()
     else:
         try:
             hora_saida_dt = datetime.strptime(hora_saida_str, '%Y-%m-%d %H:%M:%S')
@@ -156,7 +171,8 @@ def dar_entrada():
             return redirect(url_for('dar_entrada'))
             
         # 2. Cria o novo ticket
-        hora_entrada = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # ### ALTERADO ### Usa a nossa função BR para gravar a entrada
+        hora_entrada = obter_hora_br().strftime('%Y-%m-%d %H:%M:%S')
         
         db.execute(
             "INSERT INTO TICKETS (placa, hora_entrada, status) VALUES (?, ?, ?)", 
@@ -216,7 +232,9 @@ def visualizar_pagamento(ticket_id):
     
     placa_visual = formatar_placa(ticket['placa'])
     entrada_br = formatar_datahora(hora_entrada_str)
-    saida_br = datetime.now().strftime('%d/%m/%Y %H:%M:%S') 
+    
+    # ### ALTERADO ### Usa a nossa função BR para mostrar a saída prevista
+    saida_br = obter_hora_br().strftime('%d/%m/%Y %H:%M:%S') 
     ticket_numero = formatar_ticket_id(ticket_id)
     
     return render_template('confirmacao_pagamento.html', 
@@ -242,7 +260,8 @@ def finalizar_pagamento(ticket_id):
         flash("Erro de transação: Ticket não encontrado ou já pago.", 'danger')
         return redirect(url_for('listar_estacionados'))
         
-    hora_saida = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # ### ALTERADO ### Usa a nossa função BR para gravar a saída final
+    hora_saida = obter_hora_br().strftime('%Y-%m-%d %H:%M:%S')
     _, valor_total = calcular_tempo_e_valor(ticket['hora_entrada'], hora_saida)
 
     db.execute(
@@ -312,14 +331,7 @@ def historico():
         
     return render_template('listar_historico.html', historico=lista_historico)
 
-
+# --- BLOCO FINAL ---
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True)
-
-# --- Cole isso NO FINAL do seu arquivo app.py ---
-
-if __name__ == '__main__':
-    # O 'debug=True' faz o servidor reiniciar sozinho quando você salva mudanças.
-    # O 'port=5000' define a porta onde o site vai rodar.
     app.run(debug=True, port=5000)
