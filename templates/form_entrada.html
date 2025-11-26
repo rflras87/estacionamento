@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Dar Entrada{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Registro de Entrada</h1>
+    <div class="card p-4 shadow">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="placa" class="form-label">Placa do Veículo (ex: AAA9B99)</label>
+                <input type="text" class="form-control form-control-lg" id="placa" name="placa" placeholder="Informe a placa" required maxlength="7" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
+                <div class="form-text">Apenas letras e números (7 caracteres).</div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Registrar Entrada</button>
+        </form>
+    </div>
+{% endblock %}

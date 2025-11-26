@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Pagamento{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4 text-warning">Confirmação de Saída e Pagamento</h1>
+    
+    <div class="alert alert-danger">
+        Confirme os detalhes abaixo para finalizar a transação.
+    </div>
+
+    <div class="card shadow-lg p-4 mb-4">
+        <h5 class="card-title">Resumo da Transação</h5>
+        <p><strong>Ticket Nº:</strong> {{ ticket_numero }}</p>
+        <p><strong>Placa:</strong> {{ placa }}</p>
+        <p><strong>Entrada:</strong> {{ entrada }}</p>
+        <p><strong>Saída Estimada:</strong> {{ saida }}</p>
+        <hr>
+        
+        <h2>Valor Total a Pagar: <span class="text-success">R$ {{ "%.2f"|format(valor) }}</span></h2>
+    </div>
+
+    <form method="POST" action="{{ url_for('finalizar_pagamento', ticket_id=ticket_id) }}">
+        <button type="submit" class="btn btn-success btn-lg me-3">
+            ✅ CONFIRMAR PAGAMENTO E SAÍDA
+        </button>
+        <a href="{{ url_for('listar_estacionados') }}" class="btn btn-secondary btn-lg">Cancelar</a>
+    </form>
+{% endblock %}

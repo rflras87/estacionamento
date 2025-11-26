@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Veículos Estacionados{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Veículos Estacionados</h1>
+    {% if tickets %}
+        <div class="list-group">
+            {% for ticket in tickets %}
+                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center mb-2 shadow-sm">
+                    <div>
+                        <h5 class="mb-1">Placa: <strong>{{ ticket.placa }}</strong></h5>
+                        <p class="mb-1 text-muted">Ticket N°: {{ ticket.ticket_numero }}</p>
+                        <small>Entrada: {{ ticket.entrada }}</small><br>
+                        <small class="text-info">Tempo Estimado: {{ ticket.horas_cobradas }} hora(s)</small>
+                    </div>
+                    <div>
+                        <span class="fs-4 me-3 text-danger">R$ {{ "%.2f"|format(ticket.valor_a_pagar) }}</span>
+                        <a href="{{ url_for('visualizar_pagamento', ticket_id=ticket.id) }}" class="btn btn-warning btn-sm">
+                            Registrar Saída
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Nenhum veículo estacionado no momento.
+        </div>
+    {% endif %}
+{% endblock %}

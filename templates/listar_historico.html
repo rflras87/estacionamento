@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Histórico de Pagamentos{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Histórico de Pagamentos</h1>
+
+    {% if historico %}
+        <table class="table table-striped table-hover shadow-sm">
+            <thead>
+                <tr>
+                    <th>Ticket N°</th>
+                    <th>Placa</th>
+                    <th>Entrada</th>
+                    <th>Saída</th>
+                    <th>Valor Pago</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in historico %}
+                <tr>
+                    <td>{{ ticket.ticket_numero }}</td>
+                    <td><strong>{{ ticket.placa }}</strong></td>
+                    <td>{{ ticket.entrada }}</td>
+                    <td>{{ ticket.saida }}</td>
+                    <td><span class="text-success">R$ {{ "%.2f"|format(ticket.valor_total) }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            Nenhum ticket pago encontrado no histórico.
+        </div>
+    {% endif %}
+{% endblock %}

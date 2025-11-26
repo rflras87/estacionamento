@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Recibo de Pagamento{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4 text-success">Recibo de Pagamento</h1>
+    
+    <div class="alert alert-success" role="alert">
+        Pagamento concluído!
+    </div>
+
+    <div class="card shadow-lg p-4 mb-4">
+        <h5 class="card-title">Detalhes da Transação</h5>
+        <p><strong>Ticket Nº:</strong> {{ ticket_numero }}</p>
+        <p><strong>Placa:</strong> {{ placa }}</p>
+        <p><strong>Entrada:</strong> {{ entrada }}</p>
+        <p><strong>Saída:</strong> {{ saida }}</p>
+        <hr>
+        <h3>Valor Pago: <span class="text-success">R$ {{ "%.2f"|format(valor) }}</span></h3>
+    </div>
+    
+    <a href="{{ url_for('imprimir_ticket', ticket_id=ticket_id) }}" 
+       target="_blank" 
+       class="btn btn-info text-white me-3"
+       onclick="window.open(this.href, 'PRINT', 'width=350,height=600'); return false;">
+       Imprimir Romaneio (Opcional)
+    </a>
+
+    <a href="{{ url_for('listar_estacionados') }}" class="btn btn-secondary">Voltar à Lista Principal</a>
+{% endblock %}

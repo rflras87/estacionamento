@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Romaneio - {{ ticket_numero }}</title>
+    <style>
+        body {
+            width: 300px; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+            font-size: 10pt;
+            margin: 0;
+            padding: 10px;
+        }
+        .header, .footer {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+        .total {
+            font-size: 14pt;
+            font-weight: bold;
+            text-align: right;
+            border-top: 1px dashed #000;
+            padding-top: 5px;
+            margin-top: 10px;
+        }
+        /* Esconde elementos do HTML na impressão */
+        @media print {
+            body {
+                width: auto !important;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="header">
+        <p>--- MEU ESTACIONAMENTO ---</p>
+        <p>Ticket N° {{ ticket_numero }}</p>
+    </div>
+
+    <div class="details">
+        <div class="item">
+            <span>PLACA:</span>
+            <span>{{ placa }}</span>
+        </div>
+        <div class="item">
+            <span>ENTRADA:</span>
+            <span>{{ entrada }}</span>
+        </div>
+        <div class="item">
+            <span>SAÍDA:</span>
+            <span>{{ saida }}</span>
+        </div>
+    </div>
+
+    <div class="total">
+        TOTAL PAGO: R$ {{ "%.2f"|format(valor) }}
+    </div>
+
+    <div class="footer">
+        <p>Obrigado! Volte Sempre.</p>
+        <p>{{ saida }}</p>
+    </div>
+</body>
+</html>
