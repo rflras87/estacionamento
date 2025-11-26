@@ -17,3 +17,27 @@ body {
     color: #495057;
     font-size: 1.1em;
 }
+
+/* --- Adicione isto no final do seu arquivo CSS --- */
+
+.caixa-menu-padrao {
+    /* Define uma largura e altura fixas para todas */
+    width: 200px;      /* Tente aumentar ou diminuir esse valor */
+    height: 120px;     /* Altura fixa ajuda a igualar */
+
+    /* Faz o texto ficar centralizado dentro da caixa */
+    text-align: center;
+
+    /* Isso é importante! Garante que o padding (espaçamento interno)
+       não aumente o tamanho total da caixa */
+    box-sizing: border-box;
+
+    /* Um pouco de espaço interno para o texto não colar na borda */
+    padding: 20px;
+
+    /* Se elas estiverem uma ao lado da outra, isso ajuda a alinhar verticalmente */
+    vertical-align: middle;
+
+    /* OPCIONAL: Se forem links <a>, eles precisam disso para aceitar altura/largura: */
+    display: inline-block;
+}

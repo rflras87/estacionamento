@@ -316,3 +316,10 @@ def historico():
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
+
+# --- Cole isso NO FINAL do seu arquivo app.py ---
+
+if __name__ == '__main__':
+    # O 'debug=True' faz o servidor reiniciar sozinho quando você salva mudanças.
+    # O 'port=5000' define a porta onde o site vai rodar.
+    app.run(debug=True, port=5000)
