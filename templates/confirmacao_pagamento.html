@@ -1,29 +1,39 @@
-{% extends 'base.html' %}
-
-{% block title %}Confirmar Pagamento{% endblock %}
-
+{% extends "base.html" %}
+{% block title %}Pagamento{% endblock %}
 {% block content %}
-    <h1 class="mb-4 text-warning">Confirmação de Saída e Pagamento</h1>
-    
-    <div class="alert alert-danger">
-        Confirme os detalhes abaixo para finalizar a transação.
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white"><h3 class="mb-0">Finalizar Saída</h3></div>
+            <div class="card-body">
+                <h4 class="text-center mb-4">Ticket: <strong>{{ ticket_numero }}</strong></h4>
+                <dl class="row">
+                    <dt class="col-5 text-end">Placa:</dt><dd class="col-7 fs-5 fw-bold">{{ placa }}</dd>
+                    <dt class="col-5 text-end">Tipo:</dt><dd class="col-7">{{ tipo }}</dd>
+                    <dt class="col-5 text-end">Entrada:</dt><dd class="col-7">{{ entrada }}</dd>
+                    <dt class="col-5 text-end">Saída:</dt><dd class="col-7">{{ saida }}</dd>
+                    <dt class="col-5 text-end">Tempo:</dt><dd class="col-7">{{ tempo_em_horas }}h</dd>
+                </dl>
+                <hr>
+                <div class="alert alert-{{ 'success' if valor == 0 else 'danger' }} text-center fs-2 fw-bold">
+                    R$ {{ '%.2f'|format(valor) }}
+                </div>
+                <form method="POST" action="{{ url_for('finalizar_pagamento', id=ticket_id) }}">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Forma de Pagamento</label>
+                        <select class="form-select form-select-lg" name="forma_pagamento" {% if valor == 0 %}disabled{% endif %}>
+                            {% for f in formas_pagamento %}
+                                <option value="{{ f.nome }}">{{ f.nome }}</option>
+                            {% endfor %}
+                            {% if valor == 0 %}
+                                <option value="Isento" selected>Isento / Tolerância</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="d-grid"><button type="submit" class="btn btn-danger btn-lg">Confirmar</button></div>
+                </form>
+            </div>
+        </div>
     </div>
-
-    <div class="card shadow-lg p-4 mb-4">
-        <h5 class="card-title">Resumo da Transação</h5>
-        <p><strong>Ticket Nº:</strong> {{ ticket_numero }}</p>
-        <p><strong>Placa:</strong> {{ placa }}</p>
-        <p><strong>Entrada:</strong> {{ entrada }}</p>
-        <p><strong>Saída Estimada:</strong> {{ saida }}</p>
-        <hr>
-        
-        <h2>Valor Total a Pagar: <span class="text-success">R$ {{ "%.2f"|format(valor) }}</span></h2>
-    </div>
-
-    <form method="POST" action="{{ url_for('finalizar_pagamento', ticket_id=ticket_id) }}">
-        <button type="submit" class="btn btn-success btn-lg me-3">
-            ✅ CONFIRMAR PAGAMENTO E SAÍDA
-        </button>
-        <a href="{{ url_for('listar_estacionados') }}" class="btn btn-secondary btn-lg">Cancelar</a>
-    </form>
+</div>
 {% endblock %}

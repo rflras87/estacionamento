@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Login - ParkSystem{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-lg mt-5">
+            <div class="card-header bg-dark text-white text-center">
+                <h3 class="mb-0"><i class="bi bi-p-square-fill me-2"></i> ParkSystem</h3>
+                <small>Acesso ao Sistema</small>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Usuário</label>
+                        <input type="text" class="form-control" id="username" name="username" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label for="senha" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="senha" name="senha" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-box-arrow-in-right me-1"></i> Entrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

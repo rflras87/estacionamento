@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Fechar Caixa{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0"><i class="bi bi-door-closed-fill me-2"></i> Fechar Caixa (Fim de Turno)</h3>
+            </div>
+            <div class="card-body">
+                <dl class="row fs-5">
+                    <dt class="col-sm-6 text-end">Abertura:</dt>
+                    <dd class="col-sm-6">{{ caixa.data_abertura | format_datetime }} por {{ session.user_nome }}</dd>
+                    
+                    <dt class="col-sm-6 text-end">Saldo Inicial (Troco):</dt>
+                    <dd class="col-sm-6 text-primary">R$ {{ '%.2f' | format(caixa.saldo_inicial) }}</dd>
+                    
+                    <dt class="col-sm-6 text-end">Total de Vendas (Tickets Pagos):</dt>
+                    <dd class="col-sm-6 text-success">R$ {{ '%.2f' | format(total_vendas) }}</dd>
+                </dl>
+                
+                <hr>
+
+                <div class="alert alert-dark text-center fs-4" role="alert">
+                    Total Esperado no Caixa (Inicial + Vendas): **R$ {{ '%.2f' | format(saldo_final_esperado) }}**
+                </div>
+                
+                <form method="POST" action="{{ url_for('fechar_caixa') }}">
+                    <div class="mb-3">
+                        <label for="troco_deixado" class="form-label">Troco para o Próximo Caixa</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="number" step="0.01" min="0" class="form-control form-control-lg" id="troco_deixado" name="troco_deixado" value="{{ '%.2f' | format(caixa.troco_deixado if caixa.troco_deixado is not none else 0) }}" required autofocus>
+                        </div>
+                        <div class="form-text">Este valor será o "Saldo Inicial" do próximo turno.</div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-danger btn-lg"><i class="bi bi-x-octagon-fill me-2"></i> Confirmar Fechamento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

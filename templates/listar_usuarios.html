@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Usuários{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0"><i class="bi bi-person-gear me-2"></i> Gestão de Usuários</h1>
+    <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNovoUsuario">
+        <i class="bi bi-person-plus-fill me-2"></i> Novo Usuário
+    </button>
+</div>
+
+<div class="card shadow border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Nome</th>
+                        <th>Login</th>
+                        <th>Perfil</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td class="ps-4">{{ u.id }}</td>
+                        <td class="fw-bold">{{ u.nome }}</td>
+                        <td><span class="font-monospace bg-light px-2 rounded">{{ u.username }}</span></td>
+                        <td>
+                            {% if u.perfil == 'ADMIN' %}
+                                <span class="badge bg-danger">ADMIN</span>
+                            {% else %}
+                                <span class="badge bg-secondary">OPERADOR</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.id == session['user_id'] %}
+                                <span class="badge bg-success border"><i class="bi bi-person-check-fill me-1"></i> Você</span>
+                            {% else %}
+                                {% set agora = obter_hora_br() %}
+                                {% set last = u.ultimo_acesso | to_datetime %}
+                                {% set diff = (agora - last).total_seconds() %}
+                                
+                                {% if diff < 60 %} 
+                                    <span class="badge bg-white text-success border border-success d-inline-flex align-items-center" style="gap: 6px;">
+                                        <span style="width: 10px; height: 10px; background-color: #198754; border-radius: 50%; display: inline-block; box-shadow: 0 0 4px #198754;"></span>
+                                        Online
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-light text-muted border d-inline-flex align-items-center" style="gap: 6px;">
+                                        <span style="width: 8px; height: 8px; background-color: #adb5bd; border-radius: 50%; display: inline-block;"></span>
+                                        Offline
+                                    </span>
+                                    {% endif %}
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#modalReset{{ u.id }}" title="Resetar Senha">
+                                <i class="bi bi-key-fill"></i>
+                            </button>
+                            
+                            {% if u.id != session['user_id'] %}
+                                <button class="btn btn-sm btn-outline-danger" onclick="confirmarAcao('Excluir', '{{ url_for('excluir_usuario', id=u.id) }}', true)" title="Excluir">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <div class="modal fade" id="modalReset{{ u.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header bg-warning text-dark">
+                                    <h5 class="modal-title">Resetar Senha</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <form method="POST" action="{{ url_for('admin_resetar_senha') }}">
+                                    <div class="modal-body">
+                                        <input type="hidden" name="id_usuario" value="{{ u.id }}">
+                                        <p>Defina uma nova senha para <strong>{{ u.nome }}</strong>:</p>
+                                        <input type="password" class="form-control" name="nova_senha" placeholder="Nova Senha" required>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-warning">Salvar Nova Senha</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNovoUsuario" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Adicionar Novo Usuário</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('novo_usuario') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome Completo</label>
+                        <input type="text" class="form-control" name="nome" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Username (Login)</label>
+                        <input type="text" class="form-control" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Senha Inicial</label>
+                        <input type="password" class="form-control" name="senha" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Perfil de Acesso</label>
+                        <select class="form-select" name="perfil">
+                            <option value="OPERADOR">Operador (Padrão)</option>
+                            <option value="ADMIN">Administrador (Total)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Criar Usuário</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

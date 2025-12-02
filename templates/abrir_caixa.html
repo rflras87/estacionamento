@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Abrir Caixa{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0"><i class="bi bi-door-open-fill me-2"></i> Abrir Caixa (Início de Turno)</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-danger">Atenção! Não há nenhum caixa aberto. Preencha o saldo inicial para começar a operar.</p>
+                <form method="POST" action="{{ url_for('abrir_caixa') }}">
+                    <div class="mb-3">
+                        <label for="saldo_inicial" class="form-label">Saldo Inicial (Troco)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="number" step="0.01" min="0" class="form-control form-control-lg" id="saldo_inicial" name="saldo_inicial" value="{{ '%.2f' | format(sugestao) }}" required autofocus>
+                        </div>
+                        <div class="form-text">Sugestão de troco do caixa anterior: R$ **{{ '%.2f' | format(sugestao) }}**</div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg"><i class="bi bi-check-circle-fill me-2"></i> Abrir Caixa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

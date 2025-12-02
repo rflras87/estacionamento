@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Meu Perfil{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h3 class="mb-0"><i class="bi bi-person-gear me-2"></i> Meu Perfil e Segurança</h3>
+            </div>
+            <div class="card-body">
+                <p>Usuário Logado: **{{ session.user_nome }}** (Perfil: {{ session.user_perfil }})</p>
+                <hr>
+                
+                <h5 class="card-title mb-3">Alterar Senha</h5>
+                <form method="POST" action="{{ url_for('perfil') }}">
+                    <div class="mb-3">
+                        <label for="senha_atual" class="form-label">Senha Atual</label>
+                        <input type="password" class="form-control" id="senha_atual" name="senha_atual" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nova_senha" class="form-label">Nova Senha</label>
+                        <input type="password" class="form-control" id="nova_senha" name="nova_senha" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+                        <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning btn-lg"><i class="bi bi-arrow-repeat me-2"></i> Alterar Senha</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

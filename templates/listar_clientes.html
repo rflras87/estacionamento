@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0"><i class="bi bi-people-fill me-2"></i> Lista de Clientes</h1>
+    <a href="{{ url_for('novo_cliente') }}" class="btn btn-primary shadow-sm">
+        <i class="bi bi-person-plus-fill me-2"></i> Novo Cliente
+    </a>
+</div>
+
+<div class="card shadow border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Nome</th>
+                        <th>Placa</th>
+                        <th>Tipo</th>
+                        <th>Ciclo / Plano</th>
+                        <th>Telefone</th>
+                        <th class="text-end pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in clientes %}
+                    <tr>
+                        <td class="ps-4 fw-bold">{{ c.nome }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ c.placa | fmt_placa }}</span></td>
+                        <td>
+                            {% if c.tipo_cliente == 'MENSALISTA' %}
+                                <span class="badge bg-primary">Mensalista</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Avulso</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.tipo_cliente == 'MENSALISTA' %}
+                                <small class="text-muted d-block">{{ c.plano_mensal or 'Padrão' }}</small>
+                                {% if c.data_fim_ciclo %}
+                                    <small class="text-success"><i class="bi bi-calendar-check"></i> Vence: {{ c.data_fim_ciclo | format_datetime('%d/%m/%Y') }}</small>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Aguardando 1º Uso</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.telefone %}
+                                {{ c.telefone }} 
+                                {% if c.is_whatsapp %}<i class="bi bi-whatsapp text-success ms-1"></i>{% endif %}
+                            {% else %}
+                                <span class="text-muted small">Não informado</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{{ url_for('editar_cliente', id=c.id) }}" class="btn btn-sm btn-outline-primary me-1" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-danger" onclick="confirmarAcao('Excluir', '{{ url_for('excluir_cliente', id=c.id) }}', true)" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-people fs-1"></i><br>Nenhum cliente cadastrado.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

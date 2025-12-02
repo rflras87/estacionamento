@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório de Vendas{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Relatório de Tickets Pagos</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-funnel-fill me-1"></i> Filtros & Pesquisa</h5>
+        
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="setPeriodo('hoje')">Hoje</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setPeriodo('ontem')">Ontem</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setPeriodo('mes')">Este Mês</button>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('relatorios') }}">
+            
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Pesquisar</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" name="termo" value="{{ filtro_termo }}" placeholder="Digite Placa, Nome ou Número do Ticket...">
+                        <button class="btn btn-primary px-4" type="submit">Pesquisar</button>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-3 text-muted">
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label small text-muted fw-bold">Data Início</label>
+                    <input type="datetime-local" class="form-control" id="data_inicio" name="data_inicio" value="{{ filtro_inicio }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted fw-bold">Data Fim</label>
+                    <input type="datetime-local" class="form-control" id="data_fim" name="data_fim" value="{{ filtro_fim }}">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label small text-muted fw-bold">Tipo Cliente</label>
+                    <select class="form-select" name="tipo_cliente">
+                        <option value="TODOS" {% if filtro_tipo == 'TODOS' %}selected{% endif %}>Todos</option>
+                        <option value="AVULSO" {% if filtro_tipo == 'AVULSO' %}selected{% endif %}>Avulsos</option>
+                        <option value="MENSALISTA" {% if filtro_tipo == 'MENSALISTA' %}selected{% endif %}>Mensalistas</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label small text-muted fw-bold">Pagamento</label>
+                    <select class="form-select" name="forma_pagamento">
+                        <option value="TODOS" {% if filtro_pgto == 'TODOS' %}selected{% endif %}>Todas</option>
+                        <option value="Tolerância" {% if filtro_pgto == 'Tolerância' %}selected{% endif %}>Isento / Tolerância</option>
+                        {% for f in formas_pagamento %}
+                            <option value="{{ f.nome }}" {% if filtro_pgto == f.nome %}selected{% endif %}>{{ f.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-secondary w-100"><i class="bi bi-filter"></i> Filtrar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-4 text-white text-center">
+    <div class="col-md-3">
+        <div class="card shadow border-0" style="background-color: #2563EB;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-1 opacity-75" style="font-size: 0.8rem;">TOTAL GERAL</h6>
+                <h3 class="mb-0 fw-bold">R$ {{ '%.2f' | format(total_geral) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow border-0" style="background-color: #16A34A;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-1 opacity-75" style="font-size: 0.8rem;">DINHEIRO</h6>
+                <h3 class="mb-0 fw-bold">R$ {{ '%.2f' | format(totais_pgto.get('Dinheiro', 0)) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow border-0" style="background-color: #06B6D4;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-1 opacity-75" style="font-size: 0.8rem;">PIX</h6>
+                <h3 class="mb-0 fw-bold">R$ {{ '%.2f' | format(totais_pgto.get('Pix', 0)) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow border-0" style="background-color: #F59E0B;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-1 opacity-75" style="font-size: 0.8rem;">CARTÃO</h6>
+                {% set total_cartao = totais_pgto.get('Cartão de Débito', 0) + totais_pgto.get('Cartão de Crédito', 0) + totais_pgto.get('Cartão', 0) %}
+                <h3 class="mb-0 fw-bold">R$ {{ '%.2f' | format(total_cartao) }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Detalhamento</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 15%;">Ticket / Ref</th>
+                    <th style="width: 25%;">Veículo / Cliente</th>
+                    <th style="width: 30%;">Saída / Resumo</th>
+                    <th style="width: 15%;">Pagamento</th>
+                    <th style="width: 15%;" class="text-end pe-4">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for placa, dados in dados_agrupados.items() %}
+                    {% set outer_index = loop.index %}
+
+                    {% if dados.tickets | length > 1 %}
+                        <tr class="table-secondary border-top border-white">
+                            <td><span class="badge bg-primary"><i class="bi bi-folder-fill me-1"></i> MÚLTIPLOS</span></td>
+                            <td>
+                                <strong>{{ dados.placa }}</strong><br>
+                                <small class="{{ 'text-primary fw-bold' if dados.tipo_cliente == 'MENSALISTA' else 'text-muted' }}">
+                                    {{ dados.nome_cliente }}
+                                </small>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-light border shadow-sm w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target=".collapse-{{ outer_index }}">
+                                    <i class="bi bi-chevron-down me-2"></i> Ver {{ dados.tickets | length }} acessos
+                                </button>
+                            </td>
+                            <td>
+                                {% if dados.tipo_cliente == 'MENSALISTA' %}
+                                    <span class="badge bg-secondary">Mensalista</span>
+                                {% else %}
+                                    <span class="badge bg-info text-dark">Vários</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end fw-bold pe-4">R$ {{ '%.2f' | format(dados.total_pago_periodo) }}</td>
+                        </tr>
+
+                        {% for t in dados.tickets %}
+                        <tr class="collapse collapse-{{ outer_index }} bg-light tr-detail">
+                            <td class="ps-4"><i class="bi bi-arrow-return-right text-muted me-2"></i><span class="font-monospace text-muted small border rounded px-1">{{ t.ticket }}</span></td>
+                            <td class="text-muted small" colspan="1"><span class="d-block"><i class="bi bi-arrow-right-circle-fill text-success me-1"></i> {{ t.entrada }}</span></td>
+                            <td class="text-muted small"><span class="d-block"><i class="bi bi-arrow-left-circle-fill text-danger me-1"></i> {{ t.saida }}</span></td>
+                            <td>
+                                {% if t.status_visual == 'Tolerância' %}<span class="badge bg-secondary">TOLERÂNCIA</span>
+                                {% elif t.status_visual == 'Mensalista' %}<span class="badge bg-secondary">ISENTO</span>
+                                {% elif 'Dinheiro' in t.status_visual %}<span class="badge bg-success">Dinheiro</span>
+                                {% elif 'Pix' in t.status_visual %}<span class="badge bg-info text-dark">Pix</span>
+                                {% else %}<span class="badge bg-warning text-dark">{{ t.status_visual }}</span>{% endif %}
+                            </td>
+                            <td class="text-end text-muted pe-4">R$ {{ '%.2f' | format(t.valor) }}</td>
+                        </tr>
+                        {% endfor %}
+
+                    {% else %}
+                        {% set t = dados.tickets[0] %}
+                        <tr>
+                            <td><span class="badge bg-light text-dark border">{{ t.ticket }}</span></td>
+                            <td><strong>{{ dados.placa }}</strong><br>
+                                {% if dados.nome_cliente != 'Cliente Avulso' %}
+                                    <small class="{{ 'text-primary' if dados.tipo_cliente == 'MENSALISTA' else 'text-muted' }}">{{ dados.nome_cliente }}</small>
+                                {% endif %}
+                            </td>
+                            <td><i class="bi bi-arrow-left-circle-fill text-danger me-1"></i> {{ t.saida }}</td>
+                            <td>
+                                {% if t.status_visual == 'Tolerância' %}<span class="badge bg-secondary">TOLERÂNCIA</span>
+                                {% elif t.status_visual == 'Mensalista' %}<span class="badge bg-secondary">MENSALISTA</span>
+                                {% elif 'Dinheiro' in t.status_visual %}<span class="badge bg-success">Dinheiro</span>
+                                {% elif 'Pix' in t.status_visual %}<span class="badge bg-info text-dark">Pix</span>
+                                {% else %}<span class="badge bg-warning text-dark">{{ t.status_visual }}</span>{% endif %}
+                            </td>
+                            <td class="text-end fw-bold text-success pe-4">R$ {{ '%.2f' | format(t.valor) }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function setPeriodo(tipo) {
+        const inputIni = document.getElementById('data_inicio');
+        const inputFim = document.getElementById('data_fim');
+        const hoje = new Date();
+        
+        // Formata YYYY-MM-DDTHH:MM
+        const format = (date) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const h = String(date.getHours()).padStart(2, '0');
+            const min = String(date.getMinutes()).padStart(2, '0');
+            return `${y}-${m}-${d}T${h}:${min}`;
+        };
+
+        const formatZero = (date) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}T00:00`;
+        };
+        
+        const formatFimDia = (date) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}T23:59`;
+        }
+
+        if (tipo === 'hoje') {
+            // Início: Hoje 00:00 | Fim: Agora
+            inputIni.value = formatZero(hoje);
+            inputFim.value = format(hoje);
+        } else if (tipo === 'ontem') {
+            const ontem = new Date(hoje);
+            ontem.setDate(hoje.getDate() - 1);
+            inputIni.value = formatZero(ontem);
+            inputFim.value = formatFimDia(ontem);
+        } else if (tipo === 'mes') {
+            const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+            inputIni.value = formatZero(primeiroDia);
+            inputFim.value = format(hoje);
+        }
+    }
+</script>
+{% endblock %}

@@ -1,31 +1,188 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Veículos Estacionados{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">Veículos Estacionados</h1>
-    {% if tickets %}
-        <div class="list-group">
-            {% for ticket in tickets %}
-                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center mb-2 shadow-sm">
-                    <div>
-                        <h5 class="mb-1">Placa: <strong>{{ ticket.placa }}</strong></h5>
-                        <p class="mb-1 text-muted">Ticket N°: {{ ticket.ticket_numero }}</p>
-                        <small>Entrada: {{ ticket.entrada }}</small><br>
-                        <small class="text-info">Tempo Estimado: {{ ticket.horas_cobradas }} hora(s)</small>
-                    </div>
-                    <div>
-                        <span class="fs-4 me-3 text-danger">R$ {{ "%.2f"|format(ticket.valor_a_pagar) }}</span>
-                        <a href="{{ url_for('visualizar_pagamento', ticket_id=ticket.id) }}" class="btn btn-warning btn-sm">
-                            Registrar Saída
-                        </a>
-                    </div>
-                </div>
+<h1 class="mb-4">Veículos Estacionados no Pátio ({{ tickets | length }})</h1>
+
+<div id="tarifas-data" 
+     data-carro="{{ tarifas.valor_carro }}" 
+     data-moto="{{ tarifas.valor_moto }}" 
+     data-tol="{{ tarifas.tolerancia_minutos }}" 
+     data-teto="{{ tarifas.teto_diaria }}"
+     style="display: none;"></div>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Ticket</th>
+                <th>Placa</th>
+                <th>Tipo</th>
+                <th>Entrada</th>
+                <th>Tempo Decorrido</th>
+                <th class="text-end">Valor a Pagar</th>
+                <th class="text-center">Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in tickets %}
+            <tr id="row-{{ t.id }}">
+                <td>
+                    <span class="badge bg-light text-dark border border-secondary">
+                        {{ t.ticket_numero }}
+                    </span>
+                </td>
+                
+                <td class="fs-5 fw-bold">
+                    {{ t.placa }}
+                    {% if t.local %}
+                        <br><span class="badge bg-info text-dark" style="font-size: 0.7rem;"><i class="bi bi-geo-alt-fill"></i> {{ t.local }}</span>
+                    {% endif %}
+                </td>
+                
+                <td>
+                    {% if t.tipo == 'CARRO' %}<i class="bi bi-car-front-fill"></i> Carro
+                    {% elif t.tipo == 'MOTO' %}<i class="bi bi-bicycle"></i> Moto
+                    {% else %}{{ t.tipo }}{% endif %}
+                </td>
+                
+                <td>{{ t.entrada }}</td>
+                
+                <td class="fw-bold text-primary">
+                    <i class="bi bi-clock-history me-1"></i>
+                    <span class="live-timer" 
+                          data-entry="{{ t.entrada }}" 
+                          data-type="{{ t.tipo }}" 
+                          data-id="{{ t.id }}"
+                          data-mensalista="{{ '1' if t.is_mensalista_ativo else '0' }}">
+                        Calculando...
+                    </span>
+                </td>
+                
+                <td class="fs-5 text-end">
+                    <span id="price-{{ t.id }}" class="fw-bold">
+                        {% if t.valor_a_pagar == 0 %}
+                            <span class="badge bg-success">ISENTO</span>
+                        {% else %}
+                            R$ {{ '%.2f' | format(t.valor_a_pagar) }}
+                        {% endif %}
+                    </span>
+                </td>
+                
+                <td class="text-center">
+                    <a href="{{ url_for('visualizar_pagamento', id=t.id) }}" id="btn-{{ t.id }}" class="btn btn-sm {{ 'btn-outline-success' if t.valor_a_pagar == 0 else 'btn-danger' }}">
+                        {% if t.valor_a_pagar == 0 %}
+                            <i class="bi bi-check-lg me-1"></i> Finalizar Saída
+                        {% else %}
+                            <i class="bi bi-cash-coin me-1"></i> Pagar / Sair
+                        {% endif %}
+                    </a>
+                </td>
+            </tr>
             {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-info">
-            Nenhum veículo estacionado no momento.
-        </div>
-    {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% if not tickets %}
+<div class="alert alert-warning text-center mt-4" role="alert">
+    <i class="bi bi-info-circle-fill me-2"></i> Nenhum veículo estacionado no momento.
+</div>
+{% endif %}
+
+<script>
+    // Lê as tarifas do HTML
+    const configDiv = document.getElementById('tarifas-data');
+    const VALOR_CARRO = parseFloat(configDiv.dataset.carro);
+    const VALOR_MOTO = parseFloat(configDiv.dataset.moto);
+    const TOLERANCIA_MIN = parseInt(configDiv.dataset.tol);
+    const TETO_DIARIA = parseFloat(configDiv.dataset.teto);
+
+    function parseDatePTBR(dateString) {
+        if (!dateString) return new Date();
+        var parts = dateString.split(' ');
+        var dateParts = parts[0].split('/');
+        var timeParts = parts[1].split(':');
+        return new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]);
+    }
+
+    function updateDashboard() {
+        const timers = document.querySelectorAll('.live-timer');
+        const now = new Date();
+
+        timers.forEach(timer => {
+            const entryDate = parseDatePTBR(timer.dataset.entry);
+            const veiculoTipo = timer.dataset.type; // CARRO ou MOTO
+            const isMensalista = timer.dataset.mensalista === '1';
+            const ticketId = timer.dataset.id;
+
+            // Elementos visuais para atualizar
+            const priceSpan = document.getElementById(`price-${ticketId}`);
+            const btnAction = document.getElementById(`btn-${ticketId}`);
+
+            // Diferença em segundos
+            let diffSeconds = Math.floor((now - entryDate) / 1000);
+            if (diffSeconds < 0) diffSeconds = 0;
+
+            // 1. Atualiza o Tempo (00h 00m)
+            const hours = Math.floor(diffSeconds / 3600);
+            const minutes = Math.floor((diffSeconds % 3600) / 60);
+            const minStr = minutes < 10 ? '0' + minutes : minutes;
+            timer.textContent = `${hours}h ${minStr}m`;
+
+            // 2. Calcula o Preço
+            let valor = 0.0;
+            let isIsento = false;
+
+            if (isMensalista) {
+                isIsento = true; // Mensalista sempre 0
+            } else {
+                // Lógica de Tolerância
+                if (diffSeconds <= (TOLERANCIA_MIN * 60)) {
+                    isIsento = true;
+                    valor = 0.0;
+                } else {
+                    // Lógica de Cobrança
+                    let horasCobrar = Math.ceil(diffSeconds / 3600); // Arredonda hora pra cima
+                    if (horasCobrar === 0) horasCobrar = 1; // Mínimo 1h se passou da tolerância
+
+                    let tarifaHora = (veiculoTipo === 'MOTO') ? VALOR_MOTO : VALOR_CARRO;
+                    
+                    if (horasCobrar <= 24) {
+                        valor = horasCobrar * tarifaHora;
+                        if (valor > TETO_DIARIA) valor = TETO_DIARIA;
+                    } else {
+                        let dias = Math.ceil(horasCobrar / 24);
+                        valor = dias * TETO_DIARIA;
+                    }
+                }
+            }
+
+            // 3. Atualiza o Visual do Preço e do Botão
+            if (isIsento) {
+                priceSpan.innerHTML = '<span class="badge bg-success">ISENTO</span>';
+                
+                // Atualiza botão para verde (Finalizar)
+                if (btnAction.classList.contains('btn-danger')) {
+                    btnAction.className = 'btn btn-sm btn-outline-success';
+                    btnAction.innerHTML = '<i class="bi bi-check-lg me-1"></i> Finalizar Saída';
+                }
+            } else {
+                priceSpan.innerHTML = `R$ ${valor.toFixed(2).replace('.', ',')}`;
+                
+                // Atualiza botão para vermelho (Pagar)
+                if (btnAction.classList.contains('btn-outline-success')) {
+                    btnAction.className = 'btn btn-sm btn-danger';
+                    btnAction.innerHTML = '<i class="bi bi-cash-coin me-1"></i> Pagar / Sair';
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateDashboard(); 
+        setInterval(updateDashboard, 1000); // Atualiza a cada segundo
+    });
+</script>
 {% endblock %}

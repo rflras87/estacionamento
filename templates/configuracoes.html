@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Configurações{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h3 class="mb-0"><i class="bi bi-gear-fill me-2"></i> Configurações</h3>
+            </div>
+            <div class="card-body">
+                
+                <ul class="nav nav-tabs mb-4" id="configTabs" role="tablist">
+                    <li class="nav-item"><button class="nav-link active" id="tarifas-tab" data-bs-toggle="tab" data-bs-target="#tarifas" type="button">Tarifas</button></li>
+                    <li class="nav-item"><button class="nav-link" id="empresa-tab" data-bs-toggle="tab" data-bs-target="#empresa" type="button">Dados Empresa</button></li>
+                    <li class="nav-item"><button class="nav-link" id="pagamentos-tab" data-bs-toggle="tab" data-bs-target="#pagamentos" type="button">Pagamentos</button></li>
+                </ul>
+                
+                <div class="tab-content" id="configTabsContent">
+                    
+                    <div class="tab-pane fade show active" id="tarifas">
+                        <form method="POST" action="{{ url_for('configuracoes') }}">
+                            <h5 class="text-primary mb-3">Rotativo</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="fw-bold">Valor Hora (CARRO)</label>
+                                    <input type="number" step="0.01" class="form-control" name="valor_carro" value="{{ '%.2f'|format(conf.valor_carro) }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-bold">Valor Hora (MOTO)</label>
+                                    <input type="number" step="0.01" class="form-control" name="valor_moto" value="{{ '%.2f'|format(conf.valor_moto) }}" required>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="fw-bold">Teto Diária</label>
+                                    <input type="number" step="0.01" class="form-control" name="teto_diaria" value="{{ '%.2f'|format(conf.teto_diaria) }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-bold">Tolerância (Min)</label>
+                                    <input type="number" class="form-control" name="tolerancia_minutos" value="{{ conf.tolerancia_minutos }}" required>
+                                </div>
+                            </div>
+                            <hr>
+                            <h5 class="text-primary mb-3">Planos Mensalistas</h5>
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <label class="fw-bold">Diurno</label>
+                                    <input type="number" step="0.01" class="form-control" name="mensal_diurno" value="{{ '%.2f'|format(conf.mensal_diurno) }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="fw-bold">Noturno</label>
+                                    <input type="number" step="0.01" class="form-control" name="mensal_noturno" value="{{ '%.2f'|format(conf.mensal_noturno) }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="fw-bold">Integral</label>
+                                    <input type="number" step="0.01" class="form-control" name="mensal_integral" value="{{ '%.2f'|format(conf.mensal_integral) }}">
+                                </div>
+                            </div>
+                            <button type="submit" name="save_tarifas" class="btn btn-success w-100"><i class="bi bi-save me-2"></i> Salvar Tarifas</button>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="empresa">
+                        <form method="POST" action="{{ url_for('configuracoes') }}">
+                            <div class="mb-3">
+                                <label class="fw-bold">Nome Fantasia</label>
+                                <input type="text" class="form-control" name="estab_nome" value="{{ estab.nome }}" required>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="fw-bold">CNPJ</label>
+                                    <input type="text" class="form-control" name="estab_cnpj" value="{{ estab.cnpj }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-bold">Telefone</label>
+                                    <input type="text" class="form-control" name="estab_telefone" value="{{ estab.telefone }}">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-bold">Endereço</label>
+                                <input type="text" class="form-control" name="estab_endereco" value="{{ estab.endereco }}">
+                            </div>
+                            <hr>
+                            <div class="mb-3">
+                                <label class="fw-bold text-success">Total de Vagas</label>
+                                <input type="number" class="form-control" name="estab_vagas" value="{{ estab.total_vagas }}" required>
+                            </div>
+
+                            <button type="submit" name="save_empresa" class="btn btn-success w-100"><i class="bi bi-building-check me-2"></i> Salvar Dados da Empresa</button>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="pagamentos">
+                        <h5 class="text-primary mb-3">Gerenciar Formas de Pagamento</h5>
+                        
+                        <form method="POST" action="{{ url_for('configuracoes') }}" class="mb-4">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="nova_forma" placeholder="Ex: Vale Refeição..." required>
+                                <button class="btn btn-primary" type="submit" name="add_pagamento">
+                                    <i class="bi bi-plus-lg"></i> Adicionar
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <ul class="list-group shadow-sm">
+                            {% for f in formas %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-credit-card-2-front me-2 text-muted"></i> {{ f.nome }}</span>
+                                
+                                {% if f.id != 1 %}
+                                <form method="POST" action="{{ url_for('configuracoes') }}" style="display:inline;">
+                                    <input type="hidden" name="id_forma" value="{{ f.id }}">
+                                    <button type="submit" name="del_pagamento" class="btn btn-sm btn-outline-danger" title="Remover">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span class="badge bg-secondary">Padrão</span>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,17 +1,157 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Dar Entrada{% endblock %}
+{% block title %}Registrar Entrada{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">Registro de Entrada</h1>
-    <div class="card p-4 shadow">
-        <form method="POST">
-            <div class="mb-3">
-                <label for="placa" class="form-label">Placa do Veículo (ex: AAA9B99)</label>
-                <input type="text" class="form-control form-control-lg" id="placa" name="placa" placeholder="Informe a placa" required maxlength="7" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
-                <div class="form-text">Apenas letras e números (7 caracteres).</div>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h3 class="mb-0"><i class="bi bi-arrow-down-square-fill me-2"></i> Registrar Entrada</h3>
             </div>
-            <button type="submit" class="btn btn-primary btn-lg">Registrar Entrada</button>
-        </form>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('dar_entrada') }}">
+                    
+                    <div class="mb-4">
+                        <label for="placa" class="form-label fs-5 fw-bold"><i class="bi bi-card-heading"></i> Placa do Veículo</label>
+                        <input type="text" class="form-control form-control-lg text-uppercase" id="placa" name="placa" placeholder="Ex: AAA1B23" maxlength="7" required autofocus>
+                        <div id="placaFeedback" class="form-text fw-bold mt-2" style="min-height: 24px;"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fs-5 fw-bold"><i class="bi bi-car-front-fill"></i> Tipo de Veículo</label>
+                        <div class="d-flex gap-4 align-items-center">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo" id="tipoCarro" value="CARRO" required>
+                                <label class="form-check-label fs-5" for="tipoCarro">Carro</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo" id="tipoMoto" value="MOTO" required>
+                                <label class="form-check-label fs-5" for="tipoMoto">Moto</label>
+                            </div>
+                        </div>
+                        
+                        <div id="divergenceAlert" class="alert alert-warning mt-3 d-none fade show border-warning" role="alert">
+                            <div class="d-flex">
+                                <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                                <div>
+                                    <strong>Atenção! Auditoria de Tipo</strong><br>
+                                    Este veículo tem histórico registrado como <strong id="histTypeDisplay"></strong>. 
+                                    A alteração para o tipo selecionado será gravada e sinalizada no relatório financeiro.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold"><i class="bi bi-geo-alt-fill"></i> Local da Vaga (Opcional)</label>
+                        <input type="text" class="form-control" name="local_vaga" placeholder="Ex: G4, Térreo...">
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-clock-fill me-1"></i> <strong>Entrada:</strong> {{ obter_hora_br() | format_datetime }}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-circle me-2"></i> Finalizar Entrada
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+</div>
+
+<script>
+    const inputPlaca = document.getElementById('placa');
+    const radioCarro = document.getElementById('tipoCarro');
+    const radioMoto = document.getElementById('tipoMoto');
+    const feedbackDiv = document.getElementById('placaFeedback');
+    const divergenceAlert = document.getElementById('divergenceAlert');
+    const histTypeDisplay = document.getElementById('histTypeDisplay');
+    
+    // Variável para guardar o tipo histórico retornado pela API
+    let currentHistoricalType = null;
+
+    function resetState() {
+        feedbackDiv.innerHTML = "";
+        divergenceAlert.classList.add('d-none');
+        currentHistoricalType = null;
+        // Resetamos para o padrão (Carro) ou mantemos a seleção atual, mas sem alerta
+    }
+
+    function checkDivergence() {
+        // Se não tem histórico, não há divergência para checar
+        if (!currentHistoricalType) {
+            divergenceAlert.classList.add('d-none');
+            return; 
+        }
+
+        const selectedType = radioCarro.checked ? 'CARRO' : (radioMoto.checked ? 'MOTO' : null);
+        
+        // Verifica se o tipo selecionado difere do histórico
+        if (selectedType && selectedType !== currentHistoricalType) {
+            // Mostra o alerta
+            histTypeDisplay.textContent = currentHistoricalType;
+            divergenceAlert.classList.remove('d-none');
+        } else {
+            // Esconde o alerta se coincidir
+            divergenceAlert.classList.add('d-none');
+        }
+    }
+
+    // Monitora mudança nos radios para ativar o alerta em tempo real
+    radioCarro.addEventListener('change', checkDivergence);
+    radioMoto.addEventListener('change', checkDivergence);
+
+    inputPlaca.addEventListener('input', function() {
+        let p = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        this.value = p; 
+
+        if (p.length < 7) {
+            resetState();
+        }
+
+        if (p.length === 7) {
+            feedbackDiv.innerHTML = '<span class="text-secondary"><span class="spinner-border spinner-border-sm" role="status"></span> Buscando...</span>';
+            
+            fetch(`/api/consultar_placa/${p}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.encontrado) {
+                        // 1. Guarda o tipo histórico para validação
+                        currentHistoricalType = data.tipo_veiculo; // Espera 'CARRO' ou 'MOTO'
+
+                        // 2. Seleciona automaticamente o tipo correto
+                        if (currentHistoricalType === 'CARRO') {
+                            radioCarro.checked = true;
+                        } else if (currentHistoricalType === 'MOTO') {
+                            radioMoto.checked = true;
+                        }
+                        
+                        // 3. Exibe feedback visual do cliente
+                        if (data.origem === 'CADASTRO') {
+                            let tipoCli = data.tipo_cliente === 'MENSALISTA' ? 'Mensalista' : 'Cliente';
+                            feedbackDiv.innerHTML = `<span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> ${tipoCli}: ${data.nome} (${data.tipo_veiculo})</span>`;
+                        } else {
+                            feedbackDiv.innerHTML = `<span class="text-primary fw-bold"><i class="bi bi-clock-history"></i> Visitante Frequente (${data.tipo_veiculo})</span>`;
+                        }
+                        
+                        // 4. Chama a verificação (para garantir que o estado do alerta esteja correto logo após a busca)
+                        checkDivergence();
+
+                    } else {
+                        currentHistoricalType = null; // Novo veículo, sem histórico
+                        feedbackDiv.innerHTML = '<span class="text-muted small"><i class="bi bi-info-circle"></i> 1º Acesso. Selecione o tipo.</span>';
+                        divergenceAlert.classList.add('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    feedbackDiv.innerHTML = '<span class="text-danger">Erro ao consultar.</span>';
+                });
+        }
+    });
+</script>
 {% endblock %}

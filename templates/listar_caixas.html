@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório de Caixas{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Histórico de Caixas (Turnos)</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="bi bi-calendar-range me-1"></i> Filtro por Período e Operador</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('relatorio_caixas') }}">
+            <div class="row g-3 align-items-end">
+                
+                <div class="col-md-3">
+                    <label for="data_inicio" class="form-label fw-bold small text-muted">Data Início</label>
+                    <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="{{ filtro_inicio }}" required>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="data_fim" class="form-label fw-bold small text-muted">Data Fim</label>
+                    <input type="date" class="form-control" id="data_fim" name="data_fim" value="{{ filtro_fim }}" required>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="operador_id" class="form-label fw-bold small text-muted">Operador</label>
+                    <select class="form-select" id="operador_id" name="operador_id">
+                        <option value="TODOS" {% if filtro_operador == 'TODOS' %}selected{% endif %}>Todos</option>
+                        {% for u in usuarios %}
+                            <option value="{{ u.id }}" {% if filtro_operador|string == u.id|string %}selected{% endif %}>{{ u.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1"></i> Filtrar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-4 text-center">
+    
+    <div class="col-md-6">
+        <div class="card shadow border-0 text-white" style="background-color: #16A34A;">
+            <div class="card-body py-4">
+                <h6 class="text-uppercase mb-2 opacity-75" style="font-size: 0.9rem;">VENDAS TOTAIS (PERÍODO)</h6>
+                <h2 class="mb-0 fw-bold display-6">R$ {{ '%.2f' | format(total_vendas_periodo) }}</h2>
+                <small class="opacity-75">Soma apenas das vendas realizadas (Tickets)</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow border-0 bg-dark text-white"> 
+            <div class="card-body py-4">
+                <h6 class="text-uppercase mb-2 opacity-75" style="font-size: 0.9rem;">SALDO ACUMULADO (PERÍODO)</h6>
+                <h2 class="mb-0 fw-bold display-6">R$ {{ '%.2f' | format(total_final_periodo) }}</h2>
+                <small class="opacity-75">Vendas + Saldos Iniciais dos caixas</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>OPERADOR</th>
+                <th>ABERTURA</th>
+                <th>FECHAMENTO</th>
+                <th>STATUS</th>
+                <th class="text-end">SALDO INICIAL</th>
+                <th class="text-end">VENDAS</th>
+                <th class="text-end">SALDO FINAL</th>
+                <th class="text-center">AÇÕES</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in caixas %}
+            <tr class="{% if c.status == 'ABERTO' %}table-warning{% elif c.status == 'FECHADO_AUTO' %}table-danger{% endif %}">
+                <td>{{ c.id }}</td>
+                <td class="fw-bold">{{ c.operador }}</td>
+                <td>{{ c.abertura }}</td>
+                <td>{{ c.fechamento }}</td>
+                <td>
+                    <span class="badge bg-{{ 'warning text-dark' if c.status == 'ABERTO' else 'success' if c.status == 'FECHADO' else 'danger' }}">{{ c.status }}</span>
+                </td>
+                <td class="text-end">R$ {{ '%.2f' | format(c.saldo_inicial) }}</td>
+                <td class="text-end text-success fw-bold">R$ {{ '%.2f' | format(c.vendas) }}</td>
+                <td class="text-end fw-bold">R$ {{ '%.2f' | format(c.saldo_final) }}</td>
+                <td class="text-center">
+                    <a href="{{ url_for('detalhes_caixa', id=c.id) }}" class="btn btn-sm btn-info text-white"><i class="bi bi-eye-fill me-1"></i> Detalhes</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if not caixas %}
+<div class="alert alert-warning text-center mt-4" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i> Nenhum caixa encontrado com os filtros selecionados.
+</div>
+{% endif %}
+
+{% endblock %}

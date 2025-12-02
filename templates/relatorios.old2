@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório de Vendas{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Relatório de Tickets Pagos</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="bi bi-funnel-fill me-1"></i> Filtros de Busca</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('relatorios') }}">
+            <div class="row g-3 align-items-end">
+                
+                <div class="col-md-3">
+                    <label class="form-label small text-muted fw-bold">Data Início</label>
+                    <input type="datetime-local" class="form-control" name="data_inicio" value="{{ filtro_inicio }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted fw-bold">Data Fim</label>
+                    <input type="datetime-local" class="form-control" name="data_fim" value="{{ filtro_fim }}">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label small text-muted fw-bold">Pesquisar (Placa, Nome, Ticket)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" name="termo" value="{{ filtro_termo }}" placeholder="Digite para buscar...">
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small text-muted fw-bold">Tipo de Cliente</label>
+                    <select class="form-select" name="tipo_cliente">
+                        <option value="TODOS" {% if filtro_tipo == 'TODOS' %}selected{% endif %}>Todos</option>
+                        <option value="AVULSO" {% if filtro_tipo == 'AVULSO' %}selected{% endif %}>Avulsos</option>
+                        <option value="MENSALISTA" {% if filtro_tipo == 'MENSALISTA' %}selected{% endif %}>Mensalistas</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label small text-muted fw-bold">Forma de Pagamento</label>
+                    <select class="form-select" name="forma_pagamento">
+                        <option value="TODOS" {% if filtro_pgto == 'TODOS' %}selected{% endif %}>Todas</option>
+                        <option value="Tolerância" {% if filtro_pgto == 'Tolerância' %}selected{% endif %}>Isento / Tolerância</option>
+                        {% for f in formas_pagamento %}
+                            <option value="{{ f.nome }}" {% if filtro_pgto == f.nome %}selected{% endif %}>{{ f.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i> Aplicar Filtros</button>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ url_for('relatorios') }}" class="btn btn-outline-secondary w-100">Limpar Filtros</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-4 text-white text-center">
+    <div class="col-md-3">
+        <div class="card shadow border-0" style="background-color: #2563EB;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-1 opacity-75" style="font-size: 0.8rem;">TOTAL GERAL</h6>
+                <h3 class="mb-0 fw-bold">R$ {{ '%.2f' | format(total_geral) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow border-0" style="background-color: #16A34A;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-1 opacity-75" style="font-size: 0.8rem;">DINHEIRO</h6>
+                <h3 class="mb-0 fw-bold">R$ {{ '%.2f' | format(totais_pgto.get('Dinheiro', 0)) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow border-0" style="background-color: #06B6D4;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-1 opacity-75" style="font-size: 0.8rem;">PIX</h6>
+                <h3 class="mb-0 fw-bold">R$ {{ '%.2f' | format(totais_pgto.get('Pix', 0)) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow border-0" style="background-color: #F59E0B;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-1 opacity-75" style="font-size: 0.8rem;">CARTÃO</h6>
+                {% set total_cartao = totais_pgto.get('Cartão de Débito', 0) + totais_pgto.get('Cartão de Crédito', 0) + totais_pgto.get('Cartão', 0) %}
+                <h3 class="mb-0 fw-bold">R$ {{ '%.2f' | format(total_cartao) }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Detalhamento</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 15%;">Ticket / Ref</th>
+                    <th style="width: 25%;">Veículo / Cliente</th>
+                    <th style="width: 30%;">Saída / Resumo</th>
+                    <th style="width: 15%;">Pagamento</th>
+                    <th style="width: 15%;" class="text-end pe-4">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for placa, dados in dados_agrupados.items() %}
+                    
+                    {% set outer_index = loop.index %}
+
+                    {% if dados.tickets | length > 1 %}
+                        <tr class="table-secondary border-top border-white">
+                            <td class="ps-4"><span class="badge bg-primary"><i class="bi bi-folder-fill me-1"></i> MÚLTIPLOS</span></td>
+                            <td>
+                                <strong>{{ dados.placa }}</strong><br>
+                                <small class="{{ 'text-primary fw-bold' if dados.tipo_cliente == 'MENSALISTA' else 'text-muted' }}">
+                                    {{ dados.nome_cliente }}
+                                </small>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-light border shadow-sm w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target=".multi-{{ outer_index }}" aria-expanded="false">
+                                    <i class="bi bi-chevron-down me-2"></i> Ver {{ dados.tickets | length }} acessos
+                                </button>
+                            </td>
+                            <td>
+                                {% if dados.tipo_cliente == 'MENSALISTA' %}
+                                    <span class="badge bg-secondary">Mensalista</span>
+                                {% else %}
+                                    <span class="badge bg-info text-dark">Vários</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end fw-bold pe-4">R$ {{ '%.2f' | format(dados.total_pago_periodo) }}</td>
+                        </tr>
+
+                        {% for t in dados.tickets %}
+                        <tr class="collapse multi-{{ outer_index }} bg-light tr-detail">
+                            <td class="ps-4">
+                                <i class="bi bi-arrow-return-right text-muted me-2"></i>
+                                <span class="font-monospace text-muted small border rounded px-1">{{ t.ticket }}</span>
+                            </td>
+                            <td class="text-muted small" colspan="1">
+                                {% if t.valor > 0 and t.status_visual == 'Mensalista' %}
+                                    <span class="fw-bold text-success"><i class="bi bi-calendar-check me-1"></i> Renovação Mensalidade</span>
+                                {% else %}
+                                    <span class="d-block"><i class="bi bi-arrow-right-circle-fill text-success me-1"></i> {{ t.entrada }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">
+                                {% if not (t.valor > 0 and t.status_visual == 'Mensalista') %}
+                                    <span class="d-block"><i class="bi bi-arrow-left-circle-fill text-danger me-1"></i> {{ t.saida }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if t.status_visual == 'Tolerância' %}
+                                    <span class="badge bg-secondary">TOLERÂNCIA</span>
+                                {% elif t.valor > 0 and t.status_visual == 'Mensalista' %}
+                                    <span class="badge bg-success">PAGO ({{ t.pgto }})</span>
+                                {% elif t.status_visual == 'Mensalista' %}
+                                    <span class="badge bg-secondary">ISENTO</span>
+                                {% elif 'Dinheiro' in t.pgto %}
+                                    <span class="badge bg-success">Dinheiro</span>
+                                {% elif 'Pix' in t.pgto %}
+                                    <span class="badge bg-info text-dark">Pix</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">{{ t.status_visual }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end text-muted pe-4">R$ {{ '%.2f' | format(t.valor) }}</td>
+                        </tr>
+                        {% endfor %}
+
+                    {% else %}
+                        {% set t = dados.tickets[0] %}
+                        <tr>
+                            <td class="ps-4"><span class="badge bg-light text-dark border">{{ t.ticket }}</span></td>
+                            <td>
+                                <strong>{{ dados.placa }}</strong>
+                                {% if dados.nome_cliente != 'Cliente Avulso' %}
+                                    <br><small class="{{ 'text-primary' if dados.tipo_cliente == 'MENSALISTA' else 'text-muted' }}">{{ dados.nome_cliente }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if t.valor > 0 and (t.ticket.startswith('MEN') or t.status_visual == 'Mensalista') %}
+                                    <span class="text-success fw-bold"><i class="bi bi-calendar-check-fill me-1"></i> Renovação Mensalidade</span>
+                                {% else %}
+                                    <i class="bi bi-arrow-left-circle-fill text-danger me-1"></i> {{ t.saida }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if t.status_visual == 'Tolerância' %}
+                                    <span class="badge bg-secondary">TOLERÂNCIA</span>
+                                {% elif t.valor > 0 and (t.ticket.startswith('MEN') or t.status_visual == 'Mensalista') %}
+                                    <span class="badge bg-success">PAGO ({{ t.pgto }})</span>
+                                {% elif t.status_visual == 'Mensalista' %}
+                                    <span class="badge bg-secondary">MENSALISTA</span>
+                                {% elif 'Dinheiro' in t.pgto %}
+                                    <span class="badge bg-success">Dinheiro</span>
+                                {% elif 'Pix' in t.pgto %}
+                                    <span class="badge bg-info text-dark">Pix</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">{{ t.status_visual }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end fw-bold text-success pe-4">R$ {{ '%.2f' | format(t.valor) }}</td>
+                        </tr>
+                    {% endif %}
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

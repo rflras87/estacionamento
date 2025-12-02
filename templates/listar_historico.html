@@ -1,36 +1,53 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Histórico de Pagamentos{% endblock %}
+{% block title %}Histórico de Saídas{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">Histórico de Pagamentos</h1>
+<h1 class="mb-4">Histórico de Saídas (Últimos 50 Tickets)</h1>
 
-    {% if historico %}
-        <table class="table table-striped table-hover shadow-sm">
-            <thead>
-                <tr>
-                    <th>Ticket N°</th>
-                    <th>Placa</th>
-                    <th>Entrada</th>
-                    <th>Saída</th>
-                    <th>Valor Pago</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ticket in historico %}
-                <tr>
-                    <td>{{ ticket.ticket_numero }}</td>
-                    <td><strong>{{ ticket.placa }}</strong></td>
-                    <td>{{ ticket.entrada }}</td>
-                    <td>{{ ticket.saida }}</td>
-                    <td><span class="text-success">R$ {{ "%.2f"|format(ticket.valor_total) }}</span></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <div class="alert alert-info">
-            Nenhum ticket pago encontrado no histórico.
-        </div>
-    {% endif %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Ticket</th>
+                <th>Placa</th>
+                <th>Tipo</th>
+                <th>Entrada</th>
+                <th>Saída</th>
+                <th class="text-end">Valor Pago</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in historico %}
+            <tr>
+                <td><strong>{{ t.ticket_numero }}</strong></td>
+                <td class="fs-5">{{ t.placa | fmt_placa }}</td>
+                <td>{{ t.tipo }}</td>
+                <td><i class="bi bi-arrow-right-circle-fill text-success me-1"></i> {{ t.entrada }}</td>
+                <td><i class="bi bi-arrow-left-circle-fill text-danger me-1"></i> {{ t.saida }}</td>
+                <td class="text-end">
+                    {% if t.valor_total == 0 %}
+                        <span class="badge bg-success">ISENTO</span>
+                    {% else %}
+                        R$ {{ '%.2f' | format(t.valor_total) }}
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('imprimir_ticket', id=t.ticket_numero.split('-')[-1]|int) }}" target="_blank" class="btn btn-sm btn-info" title="Reimprimir">
+                        <i class="bi bi-printer-fill"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if not historico %}
+<div class="alert alert-warning text-center mt-4" role="alert">
+    Nenhum histórico encontrado.
+</div>
+{% endif %}
+
 {% endblock %}

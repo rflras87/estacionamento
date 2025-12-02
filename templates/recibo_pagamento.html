@@ -1,30 +1,43 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Recibo de Pagamento{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4 text-success">Recibo de Pagamento</h1>
-    
-    <div class="alert alert-success" role="alert">
-        Pagamento concluído!
-    </div>
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow border-success">
+            <div class="card-header bg-success text-white text-center">
+                <h3 class="mb-0"><i class="bi bi-receipt me-2"></i> Recibo de Pagamento</h3>
+            </div>
+            <div class="card-body">
+                <h4 class="card-title text-center mb-4">Ticket: **{{ ticket_numero }}**</h4>
+                
+                <dl class="row">
+                    <dt class="col-sm-5 text-end">Placa:</dt>
+                    <dd class="col-sm-7 fs-5">**{{ placa | fmt_placa }}**</dd>
+                    
+                    <dt class="col-sm-5 text-end">Entrada:</dt>
+                    <dd class="col-sm-7">{{ entrada }}</dd>
+                    
+                    <dt class="col-sm-5 text-end">Saída:</dt>
+                    <dd class="col-sm-7">{{ saida }}</dd>
 
-    <div class="card shadow-lg p-4 mb-4">
-        <h5 class="card-title">Detalhes da Transação</h5>
-        <p><strong>Ticket Nº:</strong> {{ ticket_numero }}</p>
-        <p><strong>Placa:</strong> {{ placa }}</p>
-        <p><strong>Entrada:</strong> {{ entrada }}</p>
-        <p><strong>Saída:</strong> {{ saida }}</p>
-        <hr>
-        <h3>Valor Pago: <span class="text-success">R$ {{ "%.2f"|format(valor) }}</span></h3>
-    </div>
-    
-    <a href="{{ url_for('imprimir_ticket', ticket_id=ticket_id) }}" 
-       target="_blank" 
-       class="btn btn-info text-white me-3"
-       onclick="window.open(this.href, 'PRINT', 'width=350,height=600'); return false;">
-       Imprimir Romaneio (Opcional)
-    </a>
+                    <dt class="col-sm-5 text-end">Forma de Pgto:</dt>
+                    <dd class="col-sm-7">**{{ forma_pagto }}**</dd>
+                </dl>
+                
+                <hr>
 
-    <a href="{{ url_for('listar_estacionados') }}" class="btn btn-secondary">Voltar à Lista Principal</a>
+                <div class="alert alert-success text-center fs-2 fw-bold" role="alert">
+                    Valor Pago: R$ {{ '%.2f' | format(valor) }}
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('imprimir_ticket', id=ticket_id) }}" target="_blank" class="btn btn-info"><i class="bi bi-printer-fill me-2"></i> Imprimir Recibo</a>
+                    <a href="{{ url_for('home') }}" class="btn btn-secondary"><i class="bi bi-house-fill me-2"></i> Voltar para o Início</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
