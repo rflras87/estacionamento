@@ -1,29 +1,223 @@
 {% extends "base.html" %}
-{% block title %}Clientes{% endblock %}
+{% import '_macros.html' as macros %}
+
+{% block title %}Clientes Cadastrados{% endblock %}
+
 {% block content %}
-<h1 class="mb-4">Clientes</h1>
-<a href="{{ url_for('novo_cliente') }}" class="btn btn-primary mb-3"><i class="bi bi-person-plus-fill me-1"></i> Novo Cliente</a>
-<div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead class="table-dark"><tr><th>Nome</th><th>Placa</th><th>Veículo</th><th>Tipo</th><th>Validade</th><th>Tel</th><th>Ações</th></tr></thead>
-        <tbody>
-            {% for c in clientes %}
-            <tr class="{% if c.tipo_cliente == 'MENSALISTA' %}table-success{% endif %}">
-                <td>{{ c.nome }}</td>
-                <td class="fs-5 fw-bold">{{ c.placa | fmt_placa }}</td>
-                <td>{{ c.modelo_veiculo or '-' }} <small class="text-muted">({{ c.cor_veiculo or '' }})</small></td>
-                <td>{{ c.tipo_cliente }} <span class="badge bg-secondary">{{ c.plano_mensal or '' }}</span></td>
-                <td>{% if c.tipo_cliente == 'MENSALISTA' %}{{ c.data_fim_ciclo | format_datetime('%d/%m/%Y') if c.data_fim_ciclo else 'Aguardando' }}{% else %}-{% endif %}</td>
-                <td>{{ c.telefone }}{% if c.is_whatsapp %}<i class="bi bi-whatsapp text-success ms-1"></i>{% endif %}</td>
-                <td>
-                    {% if session.get('user_perfil') == 'ADMIN' %}
-                        <a href="{{ url_for('editar_cliente', id=c.id) }}" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil-square"></i></a>
-                        <a href="{{ url_for('excluir_cliente', id=c.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Excluir?')"><i class="bi bi-trash-fill"></i></a>
-                    {% else %}<span class="text-muted small"><i class="bi bi-ban text-danger"></i> Admin</span>{% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% set hoje = obter_data_br() %} 
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="text-primary"><i class="bi bi-people-fill me-2"></i> Clientes Cadastrados</h1>
+    <a href="{{ url_for('novo_cliente') }}" class="btn btn-primary"><i class="bi bi-person-plus-fill me-1"></i> Novo Cliente</a>
 </div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <input type="text" id="buscaCliente" class="form-control" placeholder="Buscar por Nome, Placa, ou CPF/CNPJ..." onkeyup="filtrarTabela('buscaCliente', null, null, 'tabelaClientes')">
+            </div>
+            <div class="col-md-3">
+                <select id="filtroTipo" class="form-select" onchange="filtrarTabela('buscaCliente', null, null, 'tabelaClientes', 'filtroTipo')">
+                    <option value="">Todos os Clientes</option>
+                    <option value="MENSALISTA">Mensalistas</option>
+                    <option value="AVULSO">Avulsos</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select id="filtroStatus" class="form-select" onchange="filtrarTabela('buscaCliente', null, null, 'tabelaClientes', 'filtroStatus')">
+                    <option value="">Todos os Status</option>
+                    <option value="Em Dia">Em Dia</option>
+                    <option value="A Vencer">A Vencer (7 Dias)</option>
+                    <option value="Vencido">Vencidos</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0 align-middle" id="tabelaClientes">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">#</th>
+                        {# Adicionado style="width: 30%" para sugerir uma largura base #}
+                        <th style="width: 30%;">Nome</th>
+                        <th class="text-center">Placa</th>
+                        <th class="text-center">Tipo</th>
+                        <th class="text-center">Ciclo / Plano</th> 
+                        <th>Contato</th>
+                        <th class="text-center">Ações</th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in clientes %}
+                    {% set dt_vencimento_obj = c.data_fim_ciclo | to_datetime %}
+                    {# Garante que a data é válida, checando se não é o valor mínimo #}
+                    {% set dt_vencimento = dt_vencimento_obj.date() if dt_vencimento_obj and dt_vencimento_obj.year > 1900 else none %}
+                    {% set diferenca_dias = (dt_vencimento - hoje).days if dt_vencimento else -99 %}
+                    
+                    {% set is_mensalista_ativo = c.tipo_cliente == 'MENSALISTA' and diferenca_dias >= 0 %}
+                    
+                    {% set status_data = 'Vencido' if diferenca_dias < 0 and c.tipo_cliente == 'MENSALISTA' else ('A Vencer' if 0 <= diferenca_dias <= 7 and c.tipo_cliente == 'MENSALISTA' else ('Em Dia' if c.tipo_cliente == 'MENSALISTA' and diferenca_dias > 7 else 'Avulso')) %}
+
+                    <tr data-status="{{ status_data }}" data-tipo="{{ c.tipo_cliente }}">
+                        <td class="text-center text-muted">{{ loop.index }}</td>
+                        
+                        {# ALTERAÇÃO: Adicionado truncate(30) e title para tooltip #}
+                        <td style="max-width: 250px; overflow-wrap: break-word; word-wrap: break-word; white-space: normal;">
+                            <strong title="{{ c.nome }}" style="cursor: help;">
+                                {{ c.nome | truncate(30, true, '...') }}
+                            </strong>
+                            <br>
+                            <small class="text-muted">
+                                {# LÓGICA DE ÍCONE DINÂMICO AQUI #}
+                                {% if c.tipo_veiculo == 'MOTO' %}
+                                    <i class="bi bi-bicycle me-1" title="Moto"></i>
+                                {% else %}
+                                    <i class="bi bi-car-front-fill me-1" title="Carro"></i>
+                                {% endif %}
+                                
+                                {% set veiculo = [c.marca_veiculo, c.modelo_veiculo, c.cor_veiculo] | select('defined') | select('ne', None) | select('ne', '') | join(' ') %}
+                                {{ veiculo or 'Sem dados do veículo' }}
+                            </small>
+                        </td>
+                        
+                        <td class="text-center">
+                            <span class="badge bg-light text-dark border">{{ c.placa | fmt_placa }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% if c.tipo_cliente == 'MENSALISTA' %}
+                                <span class="badge bg-primary status-badge">Mensalista</span>
+                            {% else %}
+                                <span class="badge bg-secondary status-badge">Avulso</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="text-center">
+                            {% if c.tipo_cliente == 'MENSALISTA' %}
+                                {% if c.data_fim_ciclo %}
+                                    {# Lógica de Cores: Vencido (<0 dias) = Danger; Próximo (<=7 dias) = Warning; Em Dia (>7 dias) = Success #}
+                                    {% set badge_class = 'bg-danger text-white' if diferenca_dias < 0 else ('bg-warning text-dark' if 0 <= diferenca_dias <= 7 else 'bg-success text-white') %}
+                                    <div class="badge {{ badge_class }} p-2">
+                                        {% if diferenca_dias <= 7 %}
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                        {% endif %}
+                                        <small class="d-block fw-bold">{{ c.plano_mensal or 'Padrão' }}</small>
+                                        Vence: {{ c.data_fim_ciclo | format_datetime('%d/%m/%Y') }}
+                                    </div>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Aguardando 1º Uso</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="text-center">
+                            <i class="bi bi-phone me-1 text-muted"></i>{{ c.telefone }}
+                            {% if c.is_whatsapp %}<i class="bi bi-whatsapp text-success ms-1"></i>{% endif %}
+                            <br><i class="bi bi-envelope me-1 text-muted"></i>{{ c.email or 'Sem email' }}
+                        </td>
+                        
+                        <td class="text-center"> 
+                            {{ macros.botao_acao_tabela(
+                                editar_url=url_for('editar_cliente', id=c.id),
+                                excluir_url=url_for('excluir_cliente', id=c.id),
+                                is_recorrente=false
+                            ) }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-x fs-1 d-block mb-3"></i>
+                            Nenhum cliente encontrado.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalConfirmacao" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white" id="modalHeaderColor"><h5 class="modal-title" id="modalTitulo">Confirmação</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p id="modalMensagem">Tem certeza?</p></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><a href="#" id="modalBtnConfirmar" class="btn btn-primary">Confirmar</a></div></div></div></div>
+
+<script>
+    function filtrarTabela(inputId, dateIniId, dateFimId, tabelaId, selectFilterId=null) {
+        // Lógica de filtragem, adaptada para as novas colunas
+        const input = document.getElementById(inputId);
+        const tabela = document.getElementById(tabelaId);
+        const linhas = tabela.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        const select = selectFilterId ? document.getElementById(selectFilterId) : null;
+        
+        function filtrar() {
+            const termo = input.value.toLowerCase();
+            const valorFiltro = select ? select.value : '';
+            const isStatusFilter = select && (select.id === 'filtroStatus' || select.id === 'filtroTipo');
+
+            for (let i = 0; i < linhas.length; i++) {
+                const linha = linhas[i];
+                const texto = linha.innerText.toLowerCase();
+                
+                // Pega os atributos de dados para filtragem de status/tipo
+                const statusCliente = linha.getAttribute('data-status');
+                const tipoCliente = linha.getAttribute('data-tipo');
+                
+                const matchTexto = termo === "" || texto.includes(termo);
+                let matchFiltro = true;
+
+                if (isStatusFilter && valorFiltro) {
+                    if (select.id === 'filtroStatus') {
+                        // Filtra por status: 'Em Dia', 'A Vencer', 'Vencido', 'Avulso'
+                        matchFiltro = statusCliente === valorFiltro;
+                    } else if (select.id === 'filtroTipo') {
+                        // Filtra por tipo: 'MENSALISTA', 'AVULSO'
+                        matchFiltro = tipoCliente === valorFiltro;
+                    }
+                }
+
+                // Se não for filtro de status/tipo, verifica se o texto contém o termo
+                if (!isStatusFilter) {
+                    matchFiltro = matchTexto;
+                }
+
+                linha.style.display = (matchTexto && matchFiltro) ? "" : "none";
+            }
+        }
+
+        input.addEventListener('keyup', filtrar);
+        if (select) select.addEventListener('change', filtrar);
+        
+        filtrar();
+    }
+
+    // Função de Confirmação (necessária para o macro funcionar)
+    function confirmarAcao(acao, url, isDelete = false) {
+        const modal = new bootstrap.Modal(document.getElementById('modalConfirmacao'));
+        document.getElementById('modalTitulo').innerText = acao;
+        document.getElementById('modalMensagem').innerText = `Confirmar ${acao} de cliente?`;
+        document.getElementById('modalBtnConfirmar').href = url;
+        
+        const header = document.getElementById('modalHeaderColor');
+        const btn = document.getElementById('modalBtnConfirmar');
+        
+        if (isDelete) {
+            header.className = 'modal-header bg-danger text-white';
+            btn.className = 'btn btn-danger';
+            btn.innerText = 'Excluir';
+        } else {
+            header.className = 'modal-header bg-primary text-white';
+            btn.className = 'btn btn-primary';
+            btn.innerText = 'Confirmar';
+        }
+        modal.show();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Dispara o filtro inicial ao carregar a página
+    });
+</script>
 {% endblock %}

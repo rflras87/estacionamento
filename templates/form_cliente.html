@@ -3,6 +3,33 @@
 {% block title %}{{ 'Editar' if cliente else 'Novo' }} Cliente{% endblock %}
 
 {% block content %}
+<style>
+    /* CORREÇÃO DE LAYOUT */
+    #cpf_cnpj {
+        min-width: 100px; 
+    }
+    
+    /* ESTILO DOS CARDS DE VEÍCULOS */
+    .veiculo-card {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        padding: 15px;
+        margin-bottom: 15px;
+        position: relative; /* Para posicionar o botão de excluir */
+        transition: all 0.3s ease;
+    }
+    .veiculo-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .btn-remove-veiculo {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+    }
+</style>
+
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card shadow">
@@ -13,19 +40,19 @@
                 </h3>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ url_for('editar_cliente', id=cliente.id) if cliente else url_for('novo_cliente') }}">
+                <form method="POST" action="{{ url_for('editar_cliente', id=cliente.id) if cliente and cliente.id is defined else url_for('novo_cliente') }}">
+                    
+                    <h5 class="text-primary border-bottom pb-2 mb-3">
+                        <i class="bi bi-person me-1"></i> Dados Pessoais
+                    </h5>
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="nome" class="form-label fw-bold">
-                                <i class="bi bi-person me-1"></i> Nome Completo
-                            </label>
+                            <label for="nome" class="form-label fw-bold">Nome Completo</label>
                             <input type="text" class="form-control" id="nome" name="nome" value="{{ cliente.nome if cliente else '' }}" placeholder="Ex: Rafael Alves" required autofocus>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="telefone" class="form-label fw-bold">
-                                <i class="bi bi-telephone me-1"></i> Telefone
-                            </label>
+                            <label for="telefone" class="form-label fw-bold">Telefone</label>
                             <input type="text" class="form-control" id="telefone" name="telefone" value="{{ cliente.telefone if cliente else '' }}" placeholder="(11) 99999-9999" oninput="mascaraTelefone(this)">
                             
                             <div id="whatsappDiv" class="form-check mt-1" style="{{ 'display:block' if cliente and cliente.telefone|length > 14 else 'display:none' }}">
@@ -38,66 +65,148 @@
                     </div>
 
                     <h5 class="mt-3 text-secondary border-bottom pb-2">
-                        <i class="bi bi-car-front-fill me-1"></i> Veículo
+                        <i class="bi bi-file-earmark-person me-1"></i> Documentação e Contato
                     </h5>
-                    
                     <div class="row mb-3">
-                        <div class="col-md-3">
-                            <label for="placa" class="form-label fw-bold"><i class="bi bi-card-heading me-1"></i> Placa</label>
-                            <input type="text" class="form-control text-uppercase bg-light" id="placa" name="placa" value="{{ cliente.placa if cliente else '' }}" placeholder="AAA1234" maxlength="7" required>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="cpf_cnpj" class="form-label fw-bold">Número do Documento</label>
+                            
+                            <div class="d-flex gap-3 mb-2" id="docTypeSelector">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="doc_type" id="type_cpf" value="cpf" 
+                                        {% if not cliente or not cliente.cpf_cnpj or cliente.cpf_cnpj|length <= 14 %}checked{% endif %} 
+                                        onclick="resetDocField()">
+                                    <label class="form-check-label" for="type_cpf">CPF</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="doc_type" id="type_cnpj" value="cnpj" 
+                                        {% if cliente and cliente.cpf_cnpj and cliente.cpf_cnpj|length > 14 %}checked{% endif %} 
+                                        onclick="resetDocField()">
+                                    <label class="form-check-label" for="type_cnpj">CNPJ</label>
+                                </div>
+                            </div>
+                            
+                            <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj" 
+                                value="{{ cliente.cpf_cnpj if cliente and cliente.cpf_cnpj else '' }}" 
+                                placeholder="Opcional"
+                                oninput="mascaraDocumento(this)"
+                                onblur="validarDoc(this)">
+                            <div id="docFeedback" class="mt-1 small"></div>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold"><i class="bi bi-tag-fill me-1"></i> Marca</label>
-                            <input type="text" class="form-control" name="marca_veiculo" value="{{ cliente.marca_veiculo if cliente else '' }}" placeholder="Ex: VW">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold"><i class="bi bi-car-front me-1"></i> Modelo</label>
-                            <input type="text" class="form-control" name="modelo_veiculo" value="{{ cliente.modelo_veiculo if cliente else '' }}" placeholder="Ex: Fox">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold"><i class="bi bi-palette me-1"></i> Cor</label>
-                            <input type="text" class="form-control" name="cor_veiculo" value="{{ cliente.cor_veiculo if cliente else '' }}" placeholder="Ex: Cinza">
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label fw-bold">E-mail</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                value="{{ cliente.email if cliente and cliente.email else '' }}" 
+                                placeholder="contato@cliente.com">
                         </div>
                     </div>
 
+                    <h5 class="mt-3 text-secondary border-bottom pb-2">
+                        <i class="bi bi-geo-alt-fill me-1"></i> Endereço Completo
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-2 mb-3">
+                            <label for="cep" class="form-label fw-bold">CEP</label>
+                            <input type="text" class="form-control" id="cep" name="cep" 
+                                value="{{ cliente.cep if cliente and cliente.cep else '' }}" onblur="consultaCEP()">
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label for="logradouro" class="form-label fw-bold">Logradouro (Rua/Av.)</label>
+                            <input type="text" class="form-control" id="logradouro" name="logradouro" 
+                                value="{{ cliente.logradouro if cliente and cliente.logradouro else '' }}">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label for="numero" class="form-label fw-bold">Número</label>
+                            <input type="text" class="form-control" id="numero" name="numero" 
+                                value="{{ cliente.numero if cliente and cliente.numero else '' }}">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="complemento" class="form-label fw-bold">Complemento</label>
+                            <input type="text" class="form-control" id="complemento" name="complemento" 
+                                value="{{ cliente.complemento if cliente and cliente.complemento else '' }}" placeholder="Ex: Apto 101">
+                        </div>
+                    </div>
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Tipo de Veículo</label>
-                            <div class="d-flex gap-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="tipo_veiculo" id="veiculoCarro" value="CARRO" {% if not cliente or cliente.tipo_veiculo == 'CARRO' %}checked{% endif %}>
-                                    <label class="form-check-label" for="veiculoCarro">
-                                        <i class="bi bi-car-front-fill text-primary"></i> Carro
-                                    </label>
+                        <div class="col-md-4">
+                            <label for="bairro" class="form-label fw-bold">Bairro</label>
+                            <input type="text" class="form-control" id="bairro" name="bairro" 
+                                value="{{ cliente.bairro if cliente and cliente.bairro else '' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="cidade" class="form-label fw-bold">Cidade</label>
+                            <input type="text" class="form-control" id="cidade" name="cidade" 
+                                value="{{ cliente.cidade if cliente and cliente.cidade else '' }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="estado" class="form-label fw-bold">Estado</label>
+                            <input type="text" class="form-control" id="estado" name="estado" maxlength="2"
+                                value="{{ cliente.estado if cliente and cliente.estado else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 border-bottom pb-2 mb-3">
+                        <h5 class="text-secondary mb-0">
+                            <i class="bi bi-car-front-fill me-1"></i> Veículos
+                        </h5>
+                        <button type="button" class="btn btn-sm btn-success" onclick="adicionarVeiculo()">
+                            <i class="bi bi-plus-circle me-1"></i> Adicionar Veículo
+                        </button>
+                    </div>
+                    
+                    <div id="container-veiculos">
+                        <div class="veiculo-card" id="veiculo-0">
+                            <h6 class="text-primary fw-bold mb-3">Veículo Principal</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold"><i class="bi bi-card-heading me-1"></i> Placa</label>
+                                    <input type="text" class="form-control text-uppercase bg-light" name="placa[]" value="{{ cliente.placa if cliente else '' }}" placeholder="AAA1234" maxlength="7" required>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="tipo_veiculo" id="veiculoMoto" value="MOTO" {% if cliente and cliente.tipo_veiculo == 'MOTO' %}checked{% endif %}>
-                                    <label class="form-check-label" for="veiculoMoto">
-                                        <i class="bi bi-bicycle text-primary"></i> Moto
-                                    </label>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold"><i class="bi bi-tag-fill me-1"></i> Marca</label>
+                                    <input type="text" class="form-control" name="marca_veiculo[]" value="{{ cliente.marca_veiculo if cliente else '' }}" placeholder="Ex: VW">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold"><i class="bi bi-car-front me-1"></i> Modelo</label>
+                                    <input type="text" class="form-control" name="modelo_veiculo[]" value="{{ cliente.modelo_veiculo if cliente else '' }}" placeholder="Ex: Fox">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold"><i class="bi bi-palette me-1"></i> Cor</label>
+                                    <input type="text" class="form-control" name="cor_veiculo[]" value="{{ cliente.cor_veiculo if cliente else '' }}" placeholder="Ex: Cinza">
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Características</label>
-                            <div class="d-flex gap-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_suv" id="is_suv" {% if cliente and cliente.is_suv %}checked{% endif %}>
-                                    <label class="form-check-label" for="is_suv">
-                                        <i class="bi bi-truck-front-fill text-secondary"></i> SUV
-                                    </label>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Tipo de Veículo</label>
+                                    <select class="form-select" name="tipo_veiculo[]">
+                                        <option value="CARRO" {% if not cliente or cliente.tipo_veiculo == 'CARRO' %}selected{% endif %}>Carro</option>
+                                        <option value="MOTO" {% if cliente and cliente.tipo_veiculo == 'MOTO' %}selected{% endif %}>Moto</option>
+                                    </select>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_eletrico" id="is_eletrico" {% if cliente and cliente.is_eletrico %}checked{% endif %}>
-                                    <label class="form-check-label" for="is_eletrico">
-                                        <i class="bi bi-lightning-charge-fill text-warning"></i> Elétrico
-                                    </label>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Características</label>
+                                    <div class="d-flex gap-3 mt-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="is_suv_0" id="is_suv" {% if cliente and cliente.is_suv %}checked{% endif %}>
+                                            <label class="form-check-label" for="is_suv">
+                                                <i class="bi bi-truck-front-fill text-secondary"></i> SUV
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="is_eletrico_0" id="is_eletrico" {% if cliente and cliente.is_eletrico %}checked{% endif %}>
+                                            <label class="form-check-label" for="is_eletrico">
+                                                <i class="bi bi-lightning-charge-fill text-warning"></i> Elétrico
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="mb-3">
+                    <div class="mb-3 mt-4">
                         <label class="form-label fw-bold"><i class="bi bi-journal-text me-1"></i> Observações</label>
                         <textarea class="form-control" name="observacoes" rows="2" placeholder="Ex: Cliente VIP, chave na portaria...">{{ cliente.observacoes if cliente else '' }}</textarea>
                     </div>
@@ -169,6 +278,79 @@
 </div>
 
 <script>
+    // === LÓGICA DE MÚLTIPLOS VEÍCULOS ===
+    let contadorVeiculos = 0; // Começa em 0 (Veículo Principal)
+
+    function adicionarVeiculo() {
+        contadorVeiculos++;
+        const container = document.getElementById('container-veiculos');
+        
+        // Template do novo veículo (Similar ao principal, mas com botão de remover)
+        // Note que name="placa[]" mantém o array, e checkbox ganha índice único
+        const htmlVeiculo = `
+        <div class="veiculo-card" id="veiculo-${contadorVeiculos}">
+            <button type="button" class="btn btn-sm btn-danger btn-remove-veiculo" onclick="removerVeiculo(${contadorVeiculos})" title="Remover este veículo">
+                <i class="bi bi-trash-fill"></i>
+            </button>
+            <h6 class="text-secondary fw-bold mb-3">Veículo Adicional #${contadorVeiculos}</h6>
+            
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Placa</label>
+                    <input type="text" class="form-control text-uppercase bg-light" name="placa[]" placeholder="AAA1234" maxlength="7" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Marca</label>
+                    <input type="text" class="form-control" name="marca_veiculo[]" placeholder="Ex: GM">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Modelo</label>
+                    <input type="text" class="form-control" name="modelo_veiculo[]" placeholder="Ex: Onix">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Cor</label>
+                    <input type="text" class="form-control" name="cor_veiculo[]" placeholder="Ex: Branco">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Tipo</label>
+                    <select class="form-select" name="tipo_veiculo[]">
+                        <option value="CARRO" selected>Carro</option>
+                        <option value="MOTO">Moto</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Características</label>
+                    <div class="d-flex gap-3 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_suv_${contadorVeiculos}" value="1">
+                            <label class="form-check-label">SUV</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_eletrico_${contadorVeiculos}" value="1">
+                            <label class="form-check-label">Elétrico</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', htmlVeiculo);
+    }
+
+    function removerVeiculo(id) {
+        const elemento = document.getElementById(`veiculo-${id}`);
+        if (elemento) {
+            elemento.remove();
+        }
+    }
+
+    // =========================================================================
+    // MÁSCARAS E VALIDAÇÕES (CÓDIGO ORIGINAL MANTIDO E RESTAURADO)
+    // =========================================================================
+
     // MÁSCARA DE TELEFONE
     function mascaraTelefone(input) {
         let v = input.value.replace(/\D/g, "");
@@ -187,12 +369,174 @@
         }
         input.value = v.substring(0, 15);
     }
+    
+    // VALIDAÇÃO E MÁSCARA DE DOCUMENTO
+    function validaCPF(cpf) {
+        cpf = cpf.replace(/[^\d]+/g, '');
+        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+        let soma = 0, resto;
+        for (let i = 1; i <= 9; i++) soma = soma + parseInt(cpf.substring(i - 1, i)) * (11 - i);
+        resto = (soma * 10) % 11;
+        if ((resto === 10) || (resto === 11)) resto = 0;
+        if (resto !== parseInt(cpf.substring(9, 10))) return false;
+        soma = 0;
+        for (let i = 1; i <= 10; i++) soma = soma + parseInt(cpf.substring(i - 1, i)) * (12 - i);
+        resto = (soma * 10) % 11;
+        if ((resto === 10) || (resto === 11)) resto = 0;
+        return resto === parseInt(cpf.substring(10, 11));
+    }
 
-    // TOGGLE MENSALISTA
+    function validaCNPJ(cnpj) {
+        cnpj = cnpj.replace(/[^\d]+/g, '');
+        if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
+        let tamanho = cnpj.length - 2;
+        let numeros = cnpj.substring(0, tamanho);
+        let digitos = cnpj.substring(tamanho);
+        let soma = 0;
+        let pos = tamanho - 7;
+        for (let i = tamanho; i >= 1; i--) {
+            soma += numeros.charAt(tamanho - i) * pos--;
+            if (pos < 2) pos = 9;
+        }
+        let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+        if (resultado !== parseInt(digitos.charAt(0))) return false;
+        tamanho = tamanho + 1;
+        numeros = cnpj.substring(0, tamanho);
+        soma = 0;
+        pos = tamanho - 7;
+        for (let i = tamanho; i >= 1; i--) {
+            soma += numeros.charAt(tamanho - i) * pos--;
+            if (pos < 2) pos = 9;
+        }
+        resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+        return resultado === parseInt(digitos.charAt(1));
+    }
+
+    function mascaraDocumento(input) {
+        let v = input.value.replace(/\D/g, "");
+        const docType = document.querySelector('input[name="doc_type"]:checked').value;
+
+        if (docType === 'cnpj') { // CNPJ
+            if (v.length > 14) v = v.substring(0, 14); 
+            if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+            if (v.length > 5) v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+            if (v.length > 8) v = v.replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3/$4");
+            if (v.length > 12) v = v.replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, "$1.$2.$3/$4-$5");
+            input.value = v; 
+        } else { // CPF
+            if (v.length > 11) v = v.substring(0, 11); 
+            v = v.replace(/^(\d{3})(\d)/, "$1.$2");
+            v = v.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+            v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            input.value = v; 
+        }
+        validarDoc(input);
+    }
+
+    function validarDoc(input) {
+        const docFeedback = document.getElementById('docFeedback');
+        const doc = input.value.replace(/\D/g, "");
+        const docType = document.querySelector('input[name="doc_type"]:checked').value;
+
+
+        input.classList.remove('is-valid', 'is-invalid');
+        docFeedback.innerHTML = '';
+        
+        if (doc.length === 0) {
+            return;
+        }
+
+        let valido = false;
+        let tipo = '';
+
+        if (docType === 'cpf' && doc.length === 11) {
+            valido = validaCPF(doc);
+            tipo = 'CPF';
+        } else if (docType === 'cnpj' && doc.length === 14) {
+            valido = validaCNPJ(doc);
+            tipo = 'CNPJ';
+        } else {
+            docFeedback.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger"></i> Inválido (Deve ter ${docType.toUpperCase()} 11 ou 14 dígitos).`;
+            input.classList.add('is-invalid');
+            return;
+        }
+
+        if (valido) {
+            docFeedback.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> ${tipo} válido.`;
+            input.classList.add('is-valid');
+            input.removeAttribute('data-invalido');
+        } else {
+            docFeedback.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger"></i> ${tipo} inválido.`;
+            input.classList.add('is-invalid');
+            input.setAttribute('data-invalido', 'true');
+        }
+    }
+    
+    function resetDocField() {
+        const docInput = document.getElementById('cpf_cnpj');
+        docInput.value = '';
+        docInput.classList.remove('is-valid', 'is-invalid');
+        document.getElementById('docFeedback').innerHTML = '';
+        docInput.focus();
+    }
+    
+    // FUNÇÃO DE CONSULTA DE CEP (ViaCEP API)
+    function consultaCEP() {
+        const cepInput = document.getElementById('cep');
+        const cep = cepInput.value.replace(/\D/g, ""); // Remove não-dígitos
+        
+        if (cep.length === 8) {
+            const logradouro = document.getElementById('logradouro');
+            const bairro = document.getElementById('bairro');
+            const cidade = document.getElementById('cidade');
+            const estado = document.getElementById('estado');
+            const numero = document.getElementById('numero');
+            
+            // Limpa/Sinaliza os campos enquanto consulta
+            logradouro.value = '...';
+            bairro.value = '...';
+            cidade.value = '...';
+            estado.value = '...';
+
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!("erro" in data)) {
+                        logradouro.value = data.logradouro;
+                        bairro.value = data.bairro;
+                        cidade.value = data.localidade;
+                        estado.value = data.uf;
+                        numero.focus();
+                    } else {
+                        logradouro.value = '';
+                        bairro.value = '';
+                        cidade.value = '';
+                        estado.value = '';
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro na consulta de CEP:", error);
+                    logradouro.value = '';
+                    bairro.value = '';
+                    cidade.value = '';
+                    estado.value = '';
+                });
+        }
+    }
+
+    // TOGGLE MENSALISTA E LISTENERS
     document.addEventListener('DOMContentLoaded', function() {
         const tipoMensalista = document.getElementById('tipoMensalista');
         const tipoAvulso = document.getElementById('tipoAvulso');
         const regraCicloDiv = document.getElementById('regraCicloDiv');
+        const cepInput = document.getElementById('cep');
+        const cpfCnpjInput = document.getElementById('cpf_cnpj');
+        
+        cepInput.addEventListener('blur', consultaCEP);
+        
+        cpfCnpjInput.addEventListener('blur', function() {
+            validarDoc(this);
+        });
 
         function toggleRegraCiclo() {
             if (tipoMensalista.checked) {
@@ -206,5 +550,18 @@
         tipoAvulso.addEventListener('change', toggleRegraCiclo);
         toggleRegraCiclo();
     });
+    
+    // Travar submit se houver campo inválido
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const docInput = document.getElementById('cpf_cnpj');
+        
+        validarDoc(docInput); 
+        
+        if (docInput.value.replace(/\D/g, "").length > 0 && docInput.classList.contains('is-invalid')) {
+            e.preventDefault();
+            alert('Corrija o CPF/CNPJ antes de salvar.');
+        }
+    });
+
 </script>
 {% endblock %}

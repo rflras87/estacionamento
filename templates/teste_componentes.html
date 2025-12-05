@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Teste de Componentes e Estilos{% endblock %}
+{% block content %}
+
+<style>
+    /* Estilo de fundo para visualizar melhor os outlines e sombras */
+    .test-box {
+        padding: 30px;
+        background-color: #f7f7f7; 
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border: 1px solid #ddd;
+    }
+    .component-group {
+        display: flex;
+        align-items: center;
+        gap: 15px; /* Espaço entre os exemplos */
+    }
+    h4 { border-bottom: 2px dashed #ccc; padding-bottom: 10px; margin-top: 30px; }
+    .btn-lg { font-size: 1.1rem; }
+    /* Estilo de Largura Padronizada para os botões de ação */
+    .btn-padrao {
+        min-width: 100px; 
+    }
+</style>
+
+<h1 class="mb-4 text-primary"><i class="bi bi-tools me-2"></i> Teste Visual de Componentes</h1>
+<p class="lead">Use esta página para verificar a consistência dos estilos e ações antes de aplicar as macros.</p>
+
+<hr>
+
+<div class="test-box">
+    <h3>1. Botões de Ação na Tabela (Recebimento)</h3>
+    <p class="text-muted">Ações combinadas encontradas em <code>listar_estacionados.html</code>.</p>
+
+    <h4>1.1. Estilo Original (Agrupado - Cantos Retos)</h4>
+    <div class="component-group mb-4">
+        
+        <div class="btn-group shadow-sm">
+            <a href="#" class="btn btn-sm btn-outline-dark" title="Imprimir"><i class="bi bi-printer"></i></a>
+            <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-cash-coin me-1"></i> Receber</a>
+        </div>
+        
+        <div class="btn-group shadow-sm">
+            <a href="#" class="btn btn-sm btn-outline-dark" title="Imprimir"><i class="bi bi-printer"></i></a>
+            <button class="btn btn-sm btn-success"><i class="bi bi-box-arrow-right"></i> Saída</button>
+        </div>
+        
+        <div class="btn-group shadow-sm">
+            <a href="#" class="btn btn-sm btn-outline-dark" title="Imprimir"><i class="bi bi-printer"></i></a>
+            <a href="#" class="btn btn-sm btn-outline-success"><i class="bi bi-check-lg me-1"></i> Liberar</a>
+        </div>
+    </div>
+    
+    <h4>1.2. Estilo Padronizado (Separado - Largura e Alinhamento Perfeitos)</h4>
+    <div class="component-group">
+        
+        <a href="#" class="btn btn-sm btn-outline-dark shadow-sm" title="Imprimir"><i class="bi bi-printer"></i></a>
+        <a href="#" class="btn btn-padrao btn-sm btn-primary shadow-sm"><i class="bi bi-cash-coin me-1"></i> Receber</a>
+
+        <a href="#" class="btn btn-sm btn-outline-dark shadow-sm" title="Imprimir"><i class="bi bi-printer"></i></a>
+        <button class="btn btn-padrao btn-sm btn-success shadow-sm"><i class="bi bi-box-arrow-right me-1"></i> Saída</button>
+
+        <a href="#" class="btn btn-sm btn-outline-dark shadow-sm" title="Imprimir"><i class="bi bi-printer"></i></a>
+        <a href="#" class="btn btn-padrao btn-sm btn-outline-success shadow-sm"><i class="bi bi-check-lg me-1"></i> Liberar</a>
+    </div>
+</div>
+
+<div class="test-box">
+    <h3>2. Ações de Gestão (Clientes, Usuários, Financeiro)</h3>
+    <p class="text-muted">Combinações de botões <code>Editar</code>, <code>Excluir</code> e <code>Receber</code> encontradas nas listagens.</p>
+
+    <h4>2.1. Fluxo de Listagem de Clientes/Receitas</h4>
+    <div class="component-group mb-4">
+        <a href="#" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil-square"></i> Editar</a>
+        <button class="btn btn-sm btn-outline-danger" title="Excluir"><i class="bi bi-trash"></i></button>
+
+        <button class="btn btn-sm btn-outline-success" title="Receber"><i class="bi bi-check-lg"></i> Receber</button>
+        
+        <button class="btn btn-sm btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></button>
+    </div>
+    
+    <h4>2.2. Fluxo de Gestão de Usuários</h4>
+    <div class="component-group">
+        <button class="btn btn-sm btn-warning" title="Resetar Senha"><i class="bi bi-key-fill"></i> Resetar</button>
+        <button class="btn btn-sm btn-outline-danger" title="Excluir"><i class="bi bi-trash"></i></button>
+    </div>
+</div>
+
+<div class="test-box">
+    <h3>3. Status e Indicadores</h3>
+
+    <h4>3.1. Badges</h4>
+    <div class="component-group mb-4">
+        <span class="badge bg-primary">Mensalista</span>
+        <span class="badge bg-secondary">Avulso</span>
+        <span class="badge bg-success">PAGO</span>
+        <span class="badge bg-danger">ADMIN / VENCIDO</span>
+        <span class="badge bg-warning text-dark">PENDENTE / HOJE</span>
+        <span class="badge bg-info text-dark">PIX / INFO</span>
+    </div>
+    
+    <h4>3.2. Alertas (Mensagens Flash)</h4>
+    <div class="alert alert-success"><i class="bi bi-check-circle-fill me-2"></i> Sucesso! Ação concluída.</div>
+    <div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i> Erro! Verifique os dados.</div>
+    <div class="alert alert-warning"><i class="bi bi-exclamation-circle-fill me-2"></i> Aviso! O caixa está aberto em outra data.</div>
+</div>
+
+{% endblock %}

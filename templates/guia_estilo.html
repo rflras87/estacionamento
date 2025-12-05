@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Guia de Estilo (Design System) - ParkSystem{% endblock %}
+{% block content %}
+<style>
+    /* Estilos Visuais Apenas para o Guia */
+    .color-swatch {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+    }
+    .icon-display {
+        font-size: 2.5rem;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    .table th { font-size: 0.9rem; }
+    .table td { vertical-align: middle; }
+    .badge-rule { font-size: 0.75rem; }
+
+    /* Estilos dos Cards Gradientes (Relatórios) */
+    .stat-card {
+        position: relative;
+        border-radius: 8px;
+        padding: 20px;
+        color: #fff;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .stat-card .card-label { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; opacity: 0.9; letter-spacing: 0.5px; margin-bottom: 4px; z-index: 2; }
+    .stat-card .card-value { font-size: 1.6rem; font-weight: 800; z-index: 2; }
+    .stat-card .bg-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 3.5rem; opacity: 0.25; z-index: 1; }
+
+    /* Gradientes usados em relatórios (Relatorios.html) */
+    .bg-gradient-blue { background: linear-gradient(45deg, #2563eb, #3b82f6); }
+    .bg-gradient-green { background: linear-gradient(45deg, #15803d, #22c55e); }
+    .bg-gradient-cyan { background: linear-gradient(45deg, #0891b2, #06b6d4); }
+    .bg-gradient-yellow { background: linear-gradient(45deg, #ca8a04, #eab308); color: #fff; }
+</style>
+
+<div class="d-flex align-items-center mb-5">
+    <i class="bi bi-palette-fill me-3" style="font-size: 4rem; color: #0d6efd;"></i>
+    <div>
+        <h1 class="fw-bold mb-0">Guia de Estilo (Design Tokens)</h1>
+        <p class="lead text-muted">Referência visual e técnica para todas as páginas do ParkSystem.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="text-primary"><i class="bi bi-paint-bucket"></i> 1. Paleta de Cores e Regras de Uso</h2>
+        <p>A cor do botão define a intenção da ação ou o status do item.</p>
+        
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Uso Principal</th>
+                        <th>Cor</th>
+                        <th>Nome da Cor</th>
+                        <th>Código Hexadecimal (Padrão)</th>
+                        <th>Classes CSS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>**Ação/Criação/Receber/Link**</td>
+                        <td><span class="color-swatch bg-primary"></span></td>
+                        <td>Azul Primário</td>
+                        <td>`#0D6EFD`</td>
+                        <td>`btn-primary`, `text-primary`, `bg-primary`</td>
+                    </tr>
+                    <tr>
+                        <td>**Sucesso/Saída/PAGO/Isento**</td>
+                        <td><span class="color-swatch bg-success"></span></td>
+                        <td>Verde Sucesso</td>
+                        <td>`#198754`</td>
+                        <td>`btn-success`, `text-success`, `bg-success`</td>
+                    </tr>
+                    <tr>
+                        <td>**Alerta/Excluir/ADMIN/Valor > 0**</td>
+                        <td><span class="color-swatch bg-danger"></span></td>
+                        <td>Vermelho Perigo</td>
+                        <td>`#DC3545`</td>
+                        <td>`btn-danger`, `text-danger`, `bg-danger`</td>
+                    </tr>
+                    <tr>
+                        <td>**Atenção/Aviso/Resetar Senha/PENDENTE**</td>
+                        <td><span class="color-swatch bg-warning"></span></td>
+                        <td>Amarelo Aviso</td>
+                        <td>`#FFC107`</td>
+                        <td>`btn-warning`, `text-warning`, `bg-warning`</td>
+                    </tr>
+                    <tr>
+                        <td>**Info/PIX/Documentação/Secundário**</td>
+                        <td><span class="color-swatch bg-info"></span></td>
+                        <td>Ciano Info</td>
+                        <td>`#0DCAF0`</td>
+                        <td>`btn-info`, `text-info`, `bg-info`</td>
+                    </tr>
+                    <tr>
+                        <td>**Neutro/Padrão de Formulário/Offline**</td>
+                        <td><span class="color-swatch bg-secondary"></span></td>
+                        <td>Cinza Secundário</td>
+                        <td>`#6C757D`</td>
+                        <td>`btn-secondary`, `bg-secondary`, `text-muted`</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="mt-5 text-primary"><i class="bi bi-bar-chart-fill"></i> Gradientes de KPI (Página de Relatórios)</h3>
+        <p>Estilo especial usado para cards de resumo na tela de relatórios.</p>
+        <div class="row mb-4">
+            <div class="col-md-3"><div class="stat-card bg-gradient-blue"><div class="card-label">Total Geral</div><div class="card-value">AZUL</div></div></div>
+            <div class="col-md-3"><div class="stat-card bg-gradient-green"><div class="card-label">Dinheiro</div><div class="card-value">VERDE</div></div></div>
+            <div class="col-md-3"><div class="stat-card bg-gradient-cyan"><div class="card-label">Pix</div><div class="card-value">CIANO</div></div></div>
+            <div class="col-md-3"><div class="stat-card bg-gradient-yellow"><div class="card-label">Cartão</div><div class="card-value">AMARELO</div></div></div>
+        </div>
+
+    </div>
+</div>
+
+<hr>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="text-primary"><i class="bi bi-grid-fill"></i> 2. Regras de Componentes (Botões e Tabelas)</h2>
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>Ação</th>
+                        <th>Estilo Padrão</th>
+                        <th>Cor/Classe</th>
+                        <th>Largura Mínima</th>
+                        <th>Regra de Uso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>**Receber / Salvar (Principal)**</td>
+                        <td><button class="btn btn-sm btn-primary" style="min-width: 100px;">Receber</button></td>
+                        <td>`btn-primary` (Azul Preenchido)</td>
+                        <td>`100px`</td>
+                        <td>Ação principal de submissão de formulário ou transação de valor.</td>
+                    </tr>
+                    <tr>
+                        <td>**Saída / Liberar (Mensalista)**</td>
+                        <td><button class="btn btn-sm btn-success" style="min-width: 100px;">Saída</button></td>
+                        <td>`btn-success` (Verde Preenchido)</td>
+                        <td>`100px`</td>
+                        <td>Ação de conclusão de ciclo (Caixa ou Saída Mensalista).</td>
+                    </tr>
+                    <tr>
+                        <td>**Liberar (Isento R$ 0,00)**</td>
+                        <td><button class="btn btn-sm btn-outline-success" style="min-width: 100px;">Liberar</button></td>
+                        <td>`btn-outline-success` (Verde Outline)</td>
+                        <td>`100px`</td>
+                        <td>Liberação de veículo em tolerância ou valor zero.</td>
+                    </tr>
+                    <tr>
+                        <td>**Excluir / Deletar**</td>
+                        <td><button class="btn btn-sm btn-outline-danger">Botão</button></td>
+                        <td>`btn-outline-danger` (Vermelho Outline)</td>
+                        <td>Padrão</td>
+                        <td>Sempre *outline* para evitar cliques acidentais e exigir confirmação.</td>
+                    </tr>
+                    <tr>
+                        <td>**Reimprimir / Detalhes**</td>
+                        <td><button class="btn btn-sm btn-info">Botão</button></td>
+                        <td>`btn-info` (Ciano Preenchido)</td>
+                        <td>Padrão</td>
+                        <td>Ação focada em documentação ou visualização de registro.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <h3 class="mt-5 text-primary"><i class="bi bi-sliders"></i> Padrões de Layout</h3>
+        <ul>
+            <li>**Alinhamento de Tabela:** O conteúdo da tabela deve ser **centralizado** (`.text-center` na `<table>`) para melhor leitura da maioria dos dados.</li>
+            <li>**Ações em Tabela (Importante):** O grupo de botões deve usar `<div class="d-flex justify-content-center align-items-center gap-2">`.</li>
+            <li>**Alinhamento Vertical (Solução):** O botão de Saída/Liberação dentro do `<form>` deve usar `class="d-inline-flex align-items-center"` na tag `form` e o **`min-width: 100px`** no botão para garantir a largura e o alinhamento vertical perfeito.</li>
+        </ul>
+    </div>
+</div>
+
+<hr>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="text-primary"><i class="bi bi-list-stars"></i> 3. Catálogo de Ícones (BI)</h2>
+        <p>Referência visual de todos os ícones utilizados no sistema.</p>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-center">Visual</th>
+                        <th>Nome da Classe BI</th>
+                        <th>Uso Comum</th>
+                        <th>Cores Padrão</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-p-square-fill text-dark"></i></div></td><td>`bi-p-square-fill`</td><td>**Marca/Logo** (Global)</td><td>`text-white` (Navbar)</td></tr>
+                    <tr><td class="text-center"><div class="icon-display" style="font-size: 3rem;"><i class="bi bi-check2-circle text-dark"></i></div></td><td>`bi-check2-circle`</td><td>Header: **Relatório de Tickets Pagos**</td><td>`text-dark`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-plus-circle text-primary"></i></div></td><td>`bi-plus-circle`</td><td>Ação: **Nova Entrada**</td><td>`btn-primary`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-car-front-fill text-primary"></i></div></td><td>`bi-car-front-fill`</td><td>Veículo: **Carro** / Menu: Pátio</td><td>`text-primary`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-bicycle text-success"></i></div></td><td>`bi-bicycle`</td><td>Veículo: **Moto**</td><td>`text-success`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-person-badge-fill text-info"></i></div></td><td>`bi-person-badge-fill`</td><td>Veículo: **Outros** / Tipos</td><td>`text-info`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-qr-code-scan text-primary"></i></div></td><td>`bi-qr-code-scan`</td><td>**Scanner** / Busca Rápida / KPI Pix</td><td>`text-primary`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-clock-history text-primary"></i></div></td><td>`bi-clock-history`</td><td>**Tempo Decorrido** / Histórico (Menu)</td><td>`text-primary`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-cash-coin text-success"></i></div></td><td>`bi-cash-coin`</td><td>Ação: **Receber** / Link: Financeiro / KPI Dinheiro</td><td>Várias</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-receipt text-primary"></i></div></td><td>`bi-receipt`</td><td>Menu: **Histórico Caixas** / Recibo de Saída</td><td>Várias</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-door-open-fill text-success"></i></div></td><td>`bi-door-open-fill`</td><td>Ação: **Abrir Caixa**</td><td>`text-success`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-door-closed-fill text-danger"></i></div></td><td>`bi-door-closed-fill`</td><td>Ação: **Fechar Caixa**</td><td>`text-danger`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-wallet2 text-warning"></i></div></td><td>`bi-wallet2`</td><td>Menu: **Caixa** / Título: Detalhes Caixa</td><td>`text-warning`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-people-fill text-primary"></i></div></td><td>`bi-people-fill`</td><td>Link: **Clientes** / Tabs: Mensalistas</td><td>`text-primary`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-bar-chart-fill text-primary"></i></div></td><td>`bi-bar-chart-fill`</td><td>Link: **Relatórios** / Gráficos</td><td>`text-primary`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-trash text-danger"></i></div></td><td>`bi-trash`</td><td>Ação: **Excluir**</td><td>`btn-outline-danger`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-key-fill text-warning"></i></div></td><td>`bi-key-fill`</td><td>Ação: **Resetar Senha**</td><td>`btn-warning`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-arrow-repeat text-warning"></i></div></td><td>`bi-arrow-repeat`</td><td>Campo: **Recorrência** / Ação: Alterar Senha</td><td>`text-warning`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-arrow-right-circle-fill text-success"></i></div></td><td>`bi-arrow-right-circle-fill`</td><td>Fluxo: **Entrada** (no detalhe)</td><td>`text-success`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-arrow-left-circle-fill text-danger"></i></div></td><td>`bi-arrow-left-circle-fill`</td><td>Fluxo: **Saída** (no detalhe)</td><td>`text-danger`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-printer-fill text-info"></i></div></td><td>`bi-printer-fill`</td><td>Ação: **Imprimir** / Recibo</td><td>`btn-info`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-pencil-square text-primary"></i></div></td><td>`bi-pencil-square`</td><td>Ação: **Editar**</td><td>`btn-outline-primary`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-calendar-check-fill text-primary"></i></div></td><td>`bi-calendar-check-fill`</td><td>Tipo: **Mensalista** / Renovação</td><td>`text-primary`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-box-arrow-in-right text-primary"></i></div></td><td>`bi-box-arrow-in-right`</td><td>Ação: **Entrar** (Login)</td><td>`text-primary`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-filter text-primary"></i></div></td><td>`bi-filter`</td><td>Ação: **Filtrar**</td><td>`btn-primary`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-person-gear text-primary"></i></div></td><td>`bi-person-gear`</td><td>Header: **Gestão de Usuários** / Meu Perfil</td><td>Várias</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-list-ul text-secondary"></i></div></td><td>`bi-list-ul`</td><td>Menu: **Listar** Veículos</td><td>`text-secondary`</td></tr>
+                    <tr><td class="text-center"><div class="icon-display"><i class="bi bi-cpu-fill text-danger"></i></div></td><td>`bi-cpu-fill`</td><td>Header: **Sistema** (Admin)</td><td>`text-danger`</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

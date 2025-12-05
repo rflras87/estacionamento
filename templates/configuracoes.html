@@ -9,14 +9,25 @@
             </div>
             <div class="card-body">
                 
+                <!-- MENU DE ABAS -->
                 <ul class="nav nav-tabs mb-4" id="configTabs" role="tablist">
-                    <li class="nav-item"><button class="nav-link active" id="tarifas-tab" data-bs-toggle="tab" data-bs-target="#tarifas" type="button">Tarifas</button></li>
-                    <li class="nav-item"><button class="nav-link" id="empresa-tab" data-bs-toggle="tab" data-bs-target="#empresa" type="button">Dados Empresa</button></li>
-                    <li class="nav-item"><button class="nav-link" id="pagamentos-tab" data-bs-toggle="tab" data-bs-target="#pagamentos" type="button">Pagamentos</button></li>
+                    <li class="nav-item">
+                        <button class="nav-link active" id="tarifas-tab" data-bs-toggle="tab" data-bs-target="#tarifas" type="button">Tarifas</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="empresa-tab" data-bs-toggle="tab" data-bs-target="#empresa" type="button">Dados Empresa</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="impressao-tab" data-bs-toggle="tab" data-bs-target="#impressao" type="button">Impressão & Ticket</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="pagamentos-tab" data-bs-toggle="tab" data-bs-target="#pagamentos" type="button">Pagamentos</button>
+                    </li>
                 </ul>
                 
                 <div class="tab-content" id="configTabsContent">
                     
+                    <!-- ABA TARIFAS -->
                     <div class="tab-pane fade show active" id="tarifas">
                         <form method="POST" action="{{ url_for('configuracoes') }}">
                             <h5 class="text-primary mb-3">Rotativo</h5>
@@ -60,6 +71,7 @@
                         </form>
                     </div>
 
+                    <!-- ABA DADOS EMPRESA -->
                     <div class="tab-pane fade" id="empresa">
                         <form method="POST" action="{{ url_for('configuracoes') }}">
                             <div class="mb-3">
@@ -80,6 +92,14 @@
                                 <label class="fw-bold">Endereço</label>
                                 <input type="text" class="form-control" name="estab_endereco" value="{{ estab.endereco }}">
                             </div>
+                            
+                            <!-- NOVO CAMPO: HORÁRIO DE FUNCIONAMENTO -->
+                            <div class="mb-3">
+                                <label class="fw-bold text-primary"><i class="bi bi-clock me-1"></i> Horário de Funcionamento (Exibido no Ticket)</label>
+                                <textarea class="form-control" name="estab_horario" rows="2" placeholder="Ex: Seg a Sex: 08:00 às 20:00 / Sáb: 08:00 às 14:00">{{ estab.horario_funcionamento or '' }}</textarea>
+                                <small class="text-muted">Essa informação aparecerá no ticket de entrada para referência do cliente.</small>
+                            </div>
+
                             <hr>
                             <div class="mb-3">
                                 <label class="fw-bold text-success">Total de Vagas</label>
@@ -90,6 +110,51 @@
                         </form>
                     </div>
 
+                    <!-- ABA IMPRESSÃO & TICKET -->
+                    <div class="tab-pane fade" id="impressao">
+                        <form method="POST" action="{{ url_for('configuracoes') }}">
+                            
+                            <!-- Configuração de Entrada Automática -->
+                            <h5 class="text-primary mb-3"><i class="bi bi-box-arrow-in-right me-2"></i>Automação na Entrada</h5>
+                            <div class="card mb-4 border-primary">
+                                <div class="card-body bg-light">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="impAvulso" name="imprimir_entrada_avulso" {% if estab.imprimir_entrada_avulso %}checked{% endif %}>
+                                        <label class="form-check-label fw-bold" for="impAvulso">Imprimir ticket automaticamente para AVULSOS</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="impMensalista" name="imprimir_entrada_mensalista" {% if estab.imprimir_entrada_mensalista %}checked{% endif %}>
+                                        <label class="form-check-label fw-bold" for="impMensalista">Imprimir ticket automaticamente para MENSALISTAS</label>
+                                    </div>
+                                    <small class="text-muted d-block mt-2"><i class="bi bi-info-circle"></i> Ao ativar, a tela de impressão abrirá logo após o registro da entrada, agilizando o atendimento.</small>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Configuração de Saída -->
+                            <h5 class="text-primary mb-3"><i class="bi bi-receipt me-2"></i>Ticket de Saída (Recibo)</h5>
+                            
+                            <div class="alert alert-light border shadow-sm mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="exibirMsgSwitch" name="exibir_mensagem" {% if estab.exibir_mensagem %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="exibirMsgSwitch">Imprimir mensagem personalizada no rodapé?</label>
+                                </div>
+                                <small class="text-muted">Ative para mostrar avisos de feriados, promoções ou termos de responsabilidade.</small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="fw-bold mb-2">Mensagem do Rodapé:</label>
+                                <textarea class="form-control" name="mensagem_ticket" rows="4" placeholder="Ex: Não nos responsabilizamos por objetos deixados no veículo.">{{ estab.mensagem_ticket }}</textarea>
+                            </div>
+
+                            <button type="submit" name="save_impressao" class="btn btn-success w-100">
+                                <i class="bi bi-printer-fill me-2"></i> Salvar Configurações de Impressão
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- ABA PAGAMENTOS -->
                     <div class="tab-pane fade" id="pagamentos">
                         <h5 class="text-primary mb-3">Gerenciar Formas de Pagamento</h5>
                         

@@ -1,0 +1,96 @@
+{% macro botao_acao_tabela(reimprimir_url=none, editar_url=none, excluir_url=none, receber_url=none, resetar_url=none, item_id=none, is_mensalista=false, is_isento=false, is_recorrente=false) %}
+{# 
+    MACRO: Gera o grupo de botões padronizado para tabelas (Ações).
+    
+    Regras Aplicadas:
+    1. d-flex, gap-2, justify-content-center: Separação e Centralização horizontal.
+    2. min-width: 100px: Largura padronizada para os botões de ação principal.
+    3. d-inline-flex align-items-center: Garante alinhamento vertical perfeito para elementos FORM.
+#}
+<div class="d-flex justify-content-center align-items-center gap-2">
+    
+    {# ----------------------------------------------------------- #}
+    {# 1. BOTÃO REIMPRIMIR / DETALHES (Ciano/Info ou Outline Dark) #}
+    {# Nota: O 'imprimir_ticket' ou 'detalhes_caixa' usaria btn-info. Avulso usa outline-dark. #}
+    {% if reimprimir_url %}
+        {% set btn_class = 'btn-info text-white' if 'imprimir_ticket' in reimprimir_url or 'detalhes_caixa' in reimprimir_url else 'btn-outline-dark' %}
+        <a href="{{ reimprimir_url }}" target="_blank" class="btn btn-sm {{ btn_class }}" title="Reimprimir Documento">
+            <i class="bi bi-printer"></i>
+        </a>
+    {% endif %}
+    
+    {# ----------------------------------------------------------- #}
+    {# 2. BOTÕES DE AÇÃO FINANCEIRA / SAÍDA (TICKETS ESTACIONADOS) #}
+    
+    {# CORREÇÃO: Container fixo para manter o espaço (100px) quando o botão não for renderizado #}
+    <div style="min-width: 100px; height: 31px;"> 
+        {% if receber_url %}
+            {% if is_mensalista %}
+                {# MENSALISTA: Ação é SAÍDA (Verde) - Usado para mensalista ativo #}
+                <form action="{{ receber_url }}" method="POST" class="d-inline-flex align-items-center h-100 w-100">
+                    {# CORRIGIDO: Removido style="min-width" do botão e adicionado w-100 #}
+                    <button type="submit" class="btn btn-sm btn-success w-100" onclick="return confirm('Confirmar saída do mensalista?')">
+                        <i class="bi bi-box-arrow-right me-1"></i> Saída
+                    </button>
+                </form>
+                
+            {% elif is_isento %}
+                {# AVULSO ISENTO: Ação é LIBERAR (Outline Success) - Usado quando valor_a_pagar == 0 #}
+                {# CORRIGIDO: Removido style="min-width" do botão e adicionado w-100 #}
+                <a href="{{ receber_url }}" class="btn btn-sm btn-outline-success w-100">
+                    <i class="bi bi-check-lg me-1"></i> Liberar
+                </a>
+                
+            {% else %}
+                {# AVULSO COM VALOR / FINANCEIRO: Ação é RECEBER (Primary/Azul) #}
+                {# CORRIGIDO: Removido style="min-width" do botão e adicionado w-100 #}
+                <a href="{{ receber_url }}" class="btn btn-sm btn-primary w-100">
+                    <i class="bi bi-cash-coin me-1"></i> Receber
+                </a>
+            {% endif %}
+        {% endif %}
+    </div>
+    
+    {# ----------------------------------------------------------- #}
+    {# 3. BOTÕES DE AÇÃO GESTÃO (CLIENTES, USUÁRIOS, RECEITAS/DESPESAS) #}
+    
+    {% if editar_url %}
+        {# Usa btn-warning para Despesa, senão usa Outline Primary #}
+        {% set btn_class = 'btn-warning' if 'despesa' in editar_url else 'btn-outline-primary' %}
+        
+        {# CORREÇÃO ERRO 405: Determina o ID do modal e aciona via data-bs-target #}
+        {% set is_despesa = 'despesa' in editar_url %}
+        {% set modal_prefix = 'modalEditDesp' if is_despesa else 'modalEditRec' %}
+        
+        <button type="button" 
+                class="btn btn-sm {{ btn_class }}" 
+                data-bs-toggle="modal" 
+                data-bs-target="#{{ modal_prefix }}{{ item_id }}" 
+                title="Editar">
+            <i class="bi bi-pencil-square"></i>
+        </button>
+    {% endif %}
+
+    {% if resetar_url %}
+        {# Botão de Resetar Senha (Geralmente usado na lista de Usuários) #}
+        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalReset{{ item_id }}" title="Resetar Senha">
+            <i class="bi bi-key-fill"></i>
+        </button>
+    {% endif %}
+
+    {% if excluir_url %}
+        {% if is_recorrente %}
+            {# Excluir Recorrente - Deve abrir um modal customizado (modalRecorrente) #}
+            <button class="btn btn-sm btn-outline-danger" onclick="confirmarExclusaoRecorrente('{{ excluir_url[0] }}', '{{ excluir_url[1] }}')" title="Excluir Recorrente">
+                <i class="bi bi-trash"></i>
+            </button>
+        {% else %}
+            {# Excluir Simples (Deve abrir modalConfirmacao) #}
+            <button class="btn btn-sm btn-outline-danger" onclick="confirmarAcao('Excluir', '{{ excluir_url }}', true)" title="Excluir">
+                <i class="bi bi-trash"></i>
+            </button>
+        {% endif %}
+    {% endif %}
+    
+</div>
+{% endmacro %}

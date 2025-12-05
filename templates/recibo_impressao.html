@@ -1,49 +1,168 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Recibo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imprimir Ticket</title>
+    <!-- Biblioteca JS para gerar QR Code (Leve e rápida) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <style>
-        body { font-family: monospace; font-size: 12px; line-height: 1.2; width: 300px; margin: 0 auto; padding: 10px; }
-        .center { text-align: center; }
-        .separator { border-top: 1px dashed black; margin: 5px 0; }
-        .data { display: flex; justify-content: space-between; margin-bottom: 2px; }
-        .total { font-size: 16px; font-weight: bold; margin: 10px 0; border: 1px solid black; padding: 5px; }
-        .footer { font-size: 10px; margin-top: 10px; }
+        body {
+            font-family: 'Courier New', Courier, monospace; /* Fonte monoespaçada estilo cupom fiscal */
+            width: 300px; /* Largura típica de impressoras térmicas (80mm ou 58mm ajustável) */
+            margin: 0 auto;
+            padding: 10px;
+            background-color: #fff;
+            color: #000;
+        }
+        .header, .footer {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .header h2 { margin: 0; font-size: 1.2em; font-weight: bold; }
+        .header p { margin: 2px 0; font-size: 0.9em; }
+        
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 10px 0;
+        }
+
+        .content {
+            font-size: 1em;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .label { font-weight: bold; }
+
+        .total-box {
+            border: 2px solid #000;
+            padding: 10px;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* Estilo do container do QR Code */
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        
+        /* Estilo da Mensagem Personalizada */
+        .mensagem-extra {
+            text-align: center;
+            font-size: 0.85em;
+            margin-top: 10px;
+            padding: 5px;
+            border-top: 1px dotted #000;
+            font-style: italic;
+        }
+
+        /* Ocultar botão de imprimir na impressão real */
         @media print {
-            body { margin: 0; padding: 0; }
+            .no-print { display: none; }
+        }
+        .btn-print {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            font-family: sans-serif;
+            font-weight: bold;
         }
     </style>
 </head>
-<body onload="window.print()">
-    <div class="center">
-        <h3>{{ estab.nome }}</h3>
-        <p>
-            {% if estab.endereco %}{{ estab.endereco }}<br>{% endif %}
-            {% if estab.cnpj %}CNPJ: {{ estab.cnpj }}<br>{% endif %}
-            {% if estab.telefone %}Tel: {{ estab.telefone }}{% endif %}
-        </p>
+<body>
+
+    <!-- CABEÇALHO -->
+    <div class="header">
+        <h2>{{ estab.nome }}</h2>
+        {% if estab.endereco %}<p>{{ estab.endereco }}</p>{% endif %}
+        {% if estab.cnpj %}<p>CNPJ: {{ estab.cnpj }}</p>{% endif %}
+        {% if estab.telefone %}<p>Tel: {{ estab.telefone }}</p>{% endif %}
     </div>
-    <div class="separator"></div>
-    <p class="center"><strong>COMPROVANTE DE ESTACIONAMENTO</strong></p>
-    <div class="separator"></div>
 
-    <div class="data"><span>TICKET:</span> <strong>{{ ticket_numero }}</strong></div>
-    <div class="data"><span>PLACA:</span> <strong>{{ placa | fmt_placa }}</strong></div>
-    <div class="separator"></div>
+    <div class="divider"></div>
+    <div style="text-align:center; font-weight:bold; margin-bottom:10px;">COMPROVANTE DE ESTACIONAMENTO</div>
+    <div class="divider"></div>
 
-    <div class="data"><span>Entrada:</span> {{ entrada }}</div>
-    <div class="data"><span>Saída:</span> {{ saida }}</div>
-
-    <div class="separator"></div>
-    <div class="center total">
-        VALOR PAGO: R$ {{ '%.2f' | format(valor) }}
+    <!-- CONTEÚDO -->
+    <div class="content">
+        <div class="row">
+            <span class="label">TICKET:</span>
+            <span>{{ ticket_numero }}</span>
+        </div>
+        <div class="row">
+            <span class="label">PLACA:</span>
+            <span>{{ placa }}</span>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <span class="label">Entrada:</span>
+            <span>{{ entrada }}</span>
+        </div>
+        <div class="row">
+            <span class="label">Saída:</span>
+            <span>{{ saida }}</span>
+        </div>
     </div>
-    <div class="separator"></div>
 
-    <div class="center footer">
-        <p>Obrigado pela preferência!</p>
-        <p>{{ obter_hora_br() | format_datetime('%d/%m/%Y %H:%M:%S') }}</p>
+    <!-- VALOR TOTAL -->
+    <div class="total-box">
+        VALOR PAGO: R$ {{ '%.2f'|format(valor) }}
     </div>
+
+    <!-- QR CODE GERADO AUTOMATICAMENTE -->
+    <div id="qrcode"></div>
+
+    <div class="divider"></div>
+
+    <!-- MENSAGEM PERSONALIZADA (LÓGICA NOVA) -->
+    <!-- Verifica se o switch está ligado (1) e se existe texto -->
+    {% if estab.exibir_mensagem and estab.mensagem_ticket %}
+    <div class="mensagem-extra">
+        {{ estab.mensagem_ticket }}
+    </div>
+    {% endif %}
+
+    <!-- RODAPÉ PADRÃO (Apenas data/hora agora) -->
+    <div class="footer">
+        <p><small>{{ saida }}</small></p>
+    </div>
+
+    <!-- Botão para imprimir (não sai no papel) -->
+    <button onclick="window.print()" class="no-print btn-print">🖨 IMPRIMIR</button>
+
+    <script>
+        // Dados para o QR Code (formato texto simples para fácil leitura)
+        var qrData = "TICKET: {{ ticket_numero }}\n" +
+                     "PLACA: {{ placa }}\n" +
+                     "ENTRADA: {{ entrada }}\n" +
+                     "SAIDA: {{ saida }}\n" +
+                     "VALOR: R$ {{ '%.2f'|format(valor) }}";
+
+        // Geração do QR Code
+        new QRCode(document.getElementById("qrcode"), {
+            text: qrData,
+            width: 128,
+            height: 128,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.M
+        });
+
+        // Opcional: Imprimir automaticamente ao abrir
+        // window.onload = function() { window.print(); }
+    </script>
 </body>
 </html>

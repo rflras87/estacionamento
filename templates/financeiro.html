@@ -1,36 +1,65 @@
 {% extends "base.html" %}
+{# Você precisará incluir a importação da macro se for usá-la em outras partes: #}
+{# {% import "_macros.html" as macros %} #}
 
 {% block title %}Financeiro{% endblock %}
 
 {% block content %}
 <h1 class="mb-4">Painel Financeiro</h1>
 
-<div class="row mb-4 text-white text-center">
+<div class="row mb-4">
     <div class="col-md-4">
-        <div class="card shadow border-0 bg-primary">
-            <div class="card-body">
-                <h6 class="opacity-75 small text-uppercase">ENTRADAS HOJE (TICKETS)</h6>
-                <h3 class="fw-bold mb-0">R$ {{ '%.2f' | format(entradas_hoje | default(0)) }}</h3>
+        <div class="stat-card bg-gradient-blue shadow-sm h-100">
+            <div class="card-body py-4">
+                <h6 class="card-label">ENTRADAS HOJE (TICKETS)</h6>
+                <h3 class="card-value">R$ {{ '%.2f' | format(entradas_hoje | default(0)) }}</h3>
+                <i class="bi bi-clock-history bg-icon"></i>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card shadow border-0 bg-success">
-            <div class="card-body">
-                <h6 class="opacity-75 small text-uppercase">RECEITA MENSAL (TOTAL)</h6>
-                <h3 class="fw-bold mb-0">R$ {{ '%.2f' | format(entradas_mes | default(0)) }}</h3>
+        <div class="stat-card bg-gradient-green shadow-sm h-100">
+            <div class="card-body py-4">
+                <h6 class="card-label">RECEITA MENSAL (TOTAL)</h6>
+                <h3 class="card-value">R$ {{ '%.2f' | format(entradas_mes | default(0)) }}</h3>
+                <i class="bi bi-wallet2 bg-icon"></i>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card shadow border-0 bg-danger">
-            <div class="card-body">
-                <h6 class="opacity-75 small text-uppercase">DESPESAS PAGAS (MÊS)</h6>
-                <h3 class="fw-bold mb-0">R$ {{ '%.2f' | format(saidas_mes | default(0)) }}</h3>
+        <div class="stat-card bg-gradient-yellow shadow-sm h-100">
+            <div class="card-body py-4">
+                <h6 class="card-label text-dark">DESPESAS PAGAS (MÊS)</h6>
+                <h3 class="card-value text-dark">R$ {{ '%.2f' | format(saidas_mes | default(0)) }}</h3>
+                <i class="bi bi-receipt bg-icon text-dark"></i>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .stat-card {
+        position: relative;
+        border-radius: 8px;
+        padding: 20px;
+        color: #fff;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .stat-card .card-label { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; opacity: 0.9; letter-spacing: 0.5px; margin-bottom: 4px; z-index: 2; }
+    .stat-card .card-value { font-size: 1.6rem; font-weight: 800; z-index: 2; }
+    .stat-card .bg-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 3.5rem; opacity: 0.25; z-index: 1; }
+
+    /* Gradientes */
+    .bg-gradient-blue { background: linear-gradient(45deg, #2563eb, #3b82f6); }
+    .bg-gradient-green { background: linear-gradient(45deg, #15803d, #22c55e); }
+    .bg-gradient-cyan { background: linear-gradient(45deg, #0891b2, #06b6d4); }
+    .bg-gradient-yellow { background: linear-gradient(45deg, #ca8a04, #eab308); color: #fff; }
+</style>
 
 <div class="card shadow">
     <div class="card-header bg-light">
@@ -48,26 +77,115 @@
             
             <div id="mensal" class="tab-pane {% if active_tab|default('mensal') == 'mensal' %}d-block{% else %}d-none{% endif %}">
                 <div class="row mb-3 g-2 align-items-end">
-                    <div class="col-md-6"><input type="text" id="buscaMensal" class="form-control" placeholder="Buscar..." onkeyup="filtrarTabela('buscaMensal',null,null,'tabelaMensal')"></div>
-                    <div class="col-md-3 ms-auto"><select id="filtroStatusMensal" class="form-select" onchange="filtrarTabela('buscaMensal',null,null,'tabelaMensal','filtroStatusMensal')"><option value="">Todos</option><option value="VENCIDO">Vencidos</option><option value="EM DIA">Em Dia</option></select></div>
+                    <div class="col-md-6"><input type="text" id="buscaMensal" class="form-control" placeholder="Buscar..." onkeyup="filtrarTabela('buscaMensal', 'tabelaMensal', 'filtroStatusMensal')"></div>
+                    <div class="col-md-3 ms-auto">
+                        <select id="filtroStatusMensal" class="form-select" onchange="filtrarTabela('buscaMensal', 'tabelaMensal', 'filtroStatusMensal')">
+                            <option value="">Todos</option>
+                            <option value="VENCIDO">Vencidos</option>
+                            <option value="A VENCER">A Vencer (7 Dias)</option>
+                            <option value="EM DIA">Em Dia</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle" id="tabelaMensal">
-                        <thead class="table-light"><tr><th>Cliente</th><th>Plano</th><th>Vencimento</th><th>Status</th><th>Ação</th></tr></thead>
+                        <thead class="table-light">
+                            <tr>
+                                <th>Cliente</th>
+                                <th class="text-center">Ciclo / Plano</th>
+                                <th class="text-center">Ação</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             {% for c in mensalistas %}
-                            {% set hoje = obter_data_br()|string %}
-                            {% set fim = c.data_fim_ciclo.split(' ')[0] if c.data_fim_ciclo else '' %}
-                            <tr>
-                                <td><strong>{{ c.nome }}</strong><br><small class="text-muted">{{ c.placa | fmt_placa }}</small></td>
-                                <td>{{ c.plano_mensal }}</td>
-                                <td>{{ c.data_fim_ciclo | format_datetime('%d/%m/%Y') }}</td>
-                                <td>{% if fim and fim < hoje %}<span class="badge bg-danger status-badge">VENCIDO</span>{% elif fim == hoje %}<span class="badge bg-warning text-dark status-badge">HOJE</span>{% else %}<span class="badge bg-success status-badge">EM DIA</span>{% endif %}</td>
-                                <td><button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalRec{{ c.id }}"><i class="bi bi-cash-coin"></i> Receber</button></td>
+                            {% set hoje_obj = obter_data_br() %}
+                            
+                            {# Lógica de Cálculo de Dias para o Badge #}
+                            {% set dt_vencimento_obj = c.data_fim_ciclo | to_datetime %}
+                            {% set dt_vencimento = dt_vencimento_obj.date() if dt_vencimento_obj and dt_vencimento_obj.year > 1900 else none %}
+                            {% set diferenca_dias = (dt_vencimento - hoje_obj).days if dt_vencimento else -99 %}
+                            
+                            {# Define Status para Filtragem #}
+                            {% set status_filtro = 'EM DIA' %}
+                            {% if diferenca_dias < 0 %}
+                                {% set status_filtro = 'VENCIDO' %}
+                            {% elif diferenca_dias <= 7 %}
+                                {% set status_filtro = 'A VENCER' %}
+                            {% endif %}
+
+                            <tr data-status="{{ status_filtro }}">
+                                <td>
+                                    <strong>{{ c.nome }}</strong><br>
+                                    <small class="text-muted">{{ c.placa | fmt_placa }}</small>
+                                </td>
+                                
+                                <td class="text-center">
+                                    {% if c.data_fim_ciclo %}
+                                        {# Badge Colorido com Lógica de Vencimento #}
+                                        {% set badge_class = 'bg-danger text-white' if diferenca_dias < 0 else ('bg-warning text-dark' if 0 <= diferenca_dias <= 7 else 'bg-success text-white') %}
+                                        <div class="badge {{ badge_class }} p-2">
+                                            {% if diferenca_dias <= 7 %}
+                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                            {% endif %}
+                                            <small class="d-block fw-bold">{{ c.plano_mensal or 'Padrão' }}</small>
+                                            Vence: {{ c.data_fim_ciclo | format_datetime('%d/%m/%Y') }}
+                                        </div>
+                                        {% if diferenca_dias < 0 %}
+                                            <div class="small text-danger mt-1 fw-bold">Atrasado há {{ diferenca_dias|abs }} dias</div>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Aguardando 1º Uso</span>
+                                    {% endif %}
+                                </td>
+                                
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalRec{{ c.id }}">
+                                        <i class="bi bi-cash-coin"></i> Receber
+                                    </button>
+                                </td>
                             </tr>
-                            <div class="modal fade" id="modalRec{{ c.id }}"><div class="modal-dialog"><form method="POST" action="{{ url_for('receber_mensalidade_financeiro', id=c.id) }}"><div class="modal-content"><div class="modal-header bg-success text-white"><h5>Receber</h5></div><div class="modal-body"><p>{{ c.nome }}</p><input type="number" name="valor" class="form-control mb-2" value="{{ '%.2f'|format(tarifas.mensal_integral) }}"><select name="forma_pagamento" class="form-select">{% for f in formas %}<option value="{{ f.nome }}">{{ f.nome }}</option>{% endfor %}</select></div><div class="modal-footer"><button type="submit" class="btn btn-success">Confirmar</button></div></div></form></div></div>
+                            
+                            <div class="modal fade" id="modalRec{{ c.id }}">
+                                <div class="modal-dialog">
+                                    <form method="POST" action="{{ url_for('receber_mensalidade_financeiro', id=c.id) }}">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-success text-white"><h5>Receber Mensalidade</h5></div>
+                                            <div class="modal-body">
+                                                <p class="fw-bold mb-1">{{ c.nome }}</p>
+                                                <p class="text-muted small mb-3">{{ c.placa | fmt_placa }} - {{ c.plano_mensal }}</p>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Valor</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">R$</span>
+                                                        <input type="number" name="valor" class="form-control" step="0.01" value="{{ '%.2f'|format(tarifas.mensal_integral) }}">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Forma de Pagamento</label>
+                                                    <select name="forma_pagamento" class="form-select">
+                                                        {% for f in formas %}
+                                                            <option value="{{ f.nome }}">{{ f.nome }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="alert alert-info py-2 small">
+                                                    <i class="bi bi-info-circle me-1"></i>
+                                                    Ao confirmar, a data de vencimento será prorrogada por 30 dias.
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-success">Confirmar Recebimento</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                             {% else %}
-                            <tr><td colspan="5" class="text-center text-muted">Nenhum mensalista encontrado.</td></tr>
+                            <tr><td colspan="3" class="text-center text-muted">Nenhum mensalista encontrado.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -75,16 +193,22 @@
             </div>
 
             <div id="vendas" class="tab-pane {% if active_tab == 'vendas' %}d-block{% else %}d-none{% endif %}">
-                <form method="POST" action="{{ url_for('financeiro') }}" class="mb-3 bg-light p-3 rounded border">
+                {# NOVO FORMULÁRIO COM LÓGICA FILTRAR/LIMPAR #}
+                {% set is_filtered_vendas = vendas_ini or vendas_fim %}
+                <form method="POST" action="{{ url_for('financeiro') }}" id="form-vendas" class="mb-3 bg-light p-3 rounded border">
                     <input type="hidden" name="active_tab" value="vendas">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-3"><label class="small">De</label><input type="date" id="vendas_ini" name="vendas_ini" class="form-control form-control-sm" value=""></div>
-                        <div class="col-md-3"><label class="small">Até</label><input type="date" id="vendas_fim" name="vendas_fim" class="form-control form-control-sm" value=""></div>
-                        <div class="col-md-2"><button type="submit" class="btn btn-sm btn-primary w-100">Filtrar</button></div>
+                        <div class="col-md-3"><label class="small">De</label><input type="date" id="vendas_ini" name="vendas_ini" class="form-control form-control-sm" value="{{ vendas_ini|default('') }}"></div>
+                        <div class="col-md-3"><label class="small">Até</label><input type="date" id="vendas_fim" name="vendas_fim" class="form-control form-control-sm" value="{{ vendas_fim|default('') }}"></div>
+                        <div class="col-md-2">
+                            <button type="button" id="btn-vendas" onclick="gerenciarFiltro('vendas')" class="btn btn-sm w-100 {{ 'btn-secondary' if is_filtered_vendas else 'btn-primary' }}">
+                                {{ 'Limpar' if is_filtered_vendas else 'Filtrar' }}
+                            </button>
+                        </div>
                     </div>
                 </form>
                 
-                <div class="mb-3"><input type="text" id="buscaVendas" class="form-control w-50" placeholder="Buscar placa, ticket..." onkeyup="filtrarTabela('buscaVendas', null, null, 'tabelaVendas')"></div>
+                <div class="mb-3"><input type="text" id="buscaVendas" class="form-control w-50" placeholder="Buscar placa, ticket..." onkeyup="filtrarTabela('buscaVendas', 'tabelaVendas')"></div>
                 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle" id="tabelaVendas">
@@ -144,8 +268,6 @@
                                         <td class="text-end fw-bold text-success pe-4">R$ {{ '%.2f' | format(t.valor) }}</td>
                                     </tr>
                                 {% endif %}
-                            {% else %}
-                                <tr><td colspan="5" class="text-center text-muted">Nenhum ticket encontrado no período.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -153,58 +275,252 @@
             </div>
 
             <div id="car" class="tab-pane {% if active_tab == 'car' %}d-block{% else %}d-none{% endif %}">
-                <form method="POST" action="{{ url_for('financeiro') }}" class="mb-3 bg-light p-3 rounded border">
+                
+                {# NOVO RESUMO CONDICIONAL - A RECEBER #}
+                {% if car_status == 'TODOS' %}
+                    {# VISUALIZAÇÃO 1: DIVIDIDA (Quando STATUS é TODOS) #}
+                    <div class="row mb-3 g-2 align-items-center bg-light p-3 rounded border">
+                        <div class="col-md-6 text-center border-end">
+                            <span class="d-block small text-muted">Total A Receber (No Período)</span>
+                            <span class="d-block fw-bold text-warning">R$ {{ '%.2f'|format(total_rec_pendente_filtrado) }}</span>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <span class="d-block small text-muted">Total Recebido (No Período)</span>
+                            <span class="d-block fw-bold text-success">R$ {{ '%.2f'|format(total_rec_recebido_filtrado) }}</span>
+                        </div>
+                    </div>
+                {% else %}
+                    {# VISUALIZAÇÃO 2: ÚNICA (Quando STATUS é PENDENTE ou RECEBIDO) #}
+                    <div class="row mb-3 g-2 align-items-center bg-light p-3 rounded border">
+                        <div class="col-12 text-center">
+                            {% set is_pendente = car_status == 'PENDENTE' %}
+                            <span class="d-block small text-muted">Total {{ 'A Receber' if is_pendente else 'Recebido' }} (No Período)</span>
+                            <span class="d-block fw-bold text-{{ 'warning' if is_pendente else 'success' }} fs-4">
+                                R$ {{ '%.2f'|format(total_rec_pendente_filtrado) if is_pendente else '%.2f'|format(total_rec_recebido_filtrado) }}
+                            </span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# NOVO FORMULÁRIO COM LÓGICA FILTRAR/LIMPAR #}
+                {% set is_filtered_car = car_ini|default('') and car_ini != '1900-01-01' or car_fim|default('') and car_fim != '2100-01-01' %}
+                <form method="POST" action="{{ url_for('financeiro') }}" id="form-car" class="mb-3 bg-light p-3 rounded border">
                     <input type="hidden" name="active_tab" value="car">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-3"><label class="small">De</label><input type="date" id="car_ini" name="car_ini" class="form-control form-control-sm" value=""></div>
-                        <div class="col-md-3"><label class="small">Até</label><input type="date" id="car_fim" name="car_fim" class="form-control form-control-sm" value=""></div>
-                        <div class="col-md-3"><label class="small">Status</label><select id="car_status" name="car_status" class="form-select form-select-sm"><option value="TODOS">Todos</option><option value="PENDENTE">Pendentes</option><option value="PAGO">Recebidos</option></select></div>
-                        <div class="col-md-2"><button type="submit" class="btn btn-sm btn-primary w-100">Filtrar</button></div>
-                        <div class="col-md-1 text-end"><button type="button" class="btn btn-sm btn-success w-100" data-bs-toggle="modal" data-bs-target="#modalNewRec">+</button></div>
+                        <div class="col-md-3"><label class="small">De</label><input type="date" id="car_ini" name="car_ini" class="form-control form-control-sm" value="{{ car_ini|default('') if car_ini != '1900-01-01' else '' }}"></div>
+                        <div class="col-md-3"><label class="small">Até</label><input type="date" id="car_fim" name="car_fim" class="form-control form-control-sm" value="{{ car_fim|default('') if car_fim != '2100-01-01' else '' }}"></div>
+                        
+                        <div class="col-md-2">
+                            <button type="button" id="btn-car" onclick="gerenciarFiltro('car')" class="btn btn-sm w-100 {{ 'btn-secondary' if is_filtered_car else 'btn-primary' }}">
+                                {{ 'Limpar' if is_filtered_car else 'Filtrar' }}
+                            </button>
+                        </div>
+                        
+                        <div class="col-md-3"><label class="small">Status</label><select id="car_status" name="car_status" class="form-select form-control-sm">
+                            <option value="PENDENTE" {% if car_status == 'PENDENTE' %}selected{% endif %}>Pendentes</option>
+                            <option value="RECEBIDO" {% if car_status == 'RECEBIDO' %}selected{% endif %}>Recebidos</option>
+                            <option value="TODOS" {% if car_status == 'TODOS' %}selected{% endif %}>Todos</option>
+                        </select></div>
+                        
+                        <div class="col-md-1 text-end">
+                            <button type="button" class="btn btn-sm btn-success w-100" data-bs-toggle="modal" data-bs-target="#modalNewRec">+</button>
+                        </div>
                     </div>
                 </form>
                 
-                <div class="mb-3"><input type="text" id="buscaReceita" class="form-control w-25" placeholder="Buscar..." onkeyup="filtrarTabela('buscaReceita', 'car_ini', 'car_fim', 'tabelaRec', 'car_status')"></div>
+                <div class="mb-3"><input type="text" id="buscaReceita" class="form-control w-25" placeholder="Buscar..." onkeyup="filtrarTabela('buscaReceita', 'tabelaRec', 'car_status')"></div>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle" id="tabelaRec">
-                        <thead class="table-light"><tr><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead>
-                        <tbody>{% for r in receitas %}<tr><td>{{ r.descricao }}{% if r.recorrente %}<i class="bi bi-arrow-repeat ms-1"></i>{% endif %}</td><td>{{ r.data_vencimento|format_datetime('%d/%m/%Y') }}</td><td class="text-success fw-bold">{{ '%.2f'|format(r.valor) }}</td><td><span class="badge {% if r.status=='RECEBIDO' %}bg-success{% else %}bg-warning text-dark{% endif %} status-badge">{{ r.status }}</span></td><td>{% if r.status!='RECEBIDO' %}<button class="btn btn-sm btn-outline-success" onclick="confirmarAcao('Receber','{{ url_for('receber_receita', id=r.id) }}')"><i class="bi bi-check-lg"></i></button> <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalEditRec{{ r.id }}"><i class="bi bi-pencil"></i></button>{% endif %} {% if r.recorrente %}<button class="btn btn-sm btn-outline-danger" onclick="confirmarExclusaoRecorrente('{{ url_for('excluir_receita', id=r.id, modo='unico') }}', '{{ url_for('excluir_receita', id=r.id, modo='todos') }}')"><i class="bi bi-trash"></i></button>{% else %}<button class="btn btn-sm btn-outline-danger" onclick="confirmarAcao('Excluir','{{ url_for('excluir_receita', id=r.id, modo='unico') }}', true)"><i class="bi bi-trash"></i></button>{% endif %}</td></tr><div class="modal fade" id="modalEditRec{{ r.id }}" tabindex="-1"><div class="modal-dialog"><form method="POST" action="{{ url_for('editar_receita', id=r.id) }}"><div class="modal-content"><div class="modal-header bg-warning"><h5>Editar</h5></div><div class="modal-body"><input type="text" class="form-control mb-2" name="descricao" value="{{ r.descricao }}"><input type="number" step="0.01" class="form-control mb-2" name="valor" value="{{ r.valor }}"><input type="date" class="form-control mb-2" name="vencimento" value="{{ r.data_vencimento }}"><select class="form-select mb-2" name="categoria"><option>Venda Extra</option><option>Outros</option></select><textarea class="form-control" name="observacao">{{ r.observacao }}</textarea></div><div class="modal-footer"><button type="submit" class="btn btn-warning">Salvar</button></div></div></form></div></div>{% else %}<tr><td colspan="5" class="text-center text-muted">Nenhuma receita encontrada.</td></tr>{% endfor %}</tbody>
+                        <thead class="table-light"><tr><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th class="text-center">Ações</th></tr></thead>
+                        <tbody>{% for r in receitas %}
+                            {# Checagem de Atraso e Adiantamento para ícone e cor do badge #}
+                            {% set is_delayed = "(Lançamento realizado após a data original:" in r.observacao|default('') %}
+                            {% set is_adiantado = "Lançamento baixado adiantado." in r.observacao|default('') %}
+                            <tr data-vencimento="{{ r.data_vencimento }}" data-status="{{ r.status }}">
+                                <td>
+                                    {{ r.descricao }}{% if r.recorrente %}<i class="bi bi-arrow-repeat ms-1"></i>{% endif %}
+                                </td>
+                                <td>{{ r.data_vencimento|format_datetime('%d/%m/%Y') }}</td>
+                                <td class="text-success fw-bold">{{ '%.2f'|format(r.valor) }}</td>
+                                <td>
+                                    {# Lógica de cor do badge de status #}
+                                    {% set badge_class = 'bg-success' %}
+                                    {% if r.status=='PENDENTE' %}{% set badge_class = 'bg-warning text-dark' %}
+                                    {% elif r.status=='RECEBIDO' and is_delayed %}{% set badge_class = 'bg-danger text-white' %}
+                                    {% elif r.status=='RECEBIDO' and is_adiantado %}{% set badge_class = 'bg-info text-white' %}
+                                    {% endif %}
+
+                                    <span class="badge {{ badge_class }} status-badge">{{ r.status }}</span>
+                                </td>
+                                
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                        {# Receber (Verde Sólido + Ícone) #}
+                                        <div style="min-width: 100px; height: 31px;">
+                                            {% if r.status!='RECEBIDO' %}
+                                            <button class="btn btn-sm btn-success w-100" onclick="confirmarAcao('Receber','{{ url_for('receber_receita', id=r.id) }}', false, '{{ r.data_vencimento }}')">
+                                                <i class="bi bi-cash-coin"></i> Receber
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {# Editar (Amarelo Sólido + Ícone) #}
+                                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditRec{{ r.id }}"><i class="bi bi-pencil-square"></i></button>
+                                        
+                                        {# Excluir (Vermelho Sólido) #}
+                                        {% if r.recorrente %}
+                                        <button class="btn btn-sm btn-danger" onclick="confirmarExclusaoRecorrente('{{ url_for('excluir_receita', id=r.id, modo='unico') }}', '{{ url_for('excluir_receita', id=r.id, modo='todos') }}')"><i class="bi bi-trash"></i></button>
+                                        {% else %}
+                                        <button class="btn btn-sm btn-danger" onclick="confirmarAcao('Excluir','{{ url_for('excluir_receita', id=r.id, modo='unico') }}', true, null)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                
+                            </tr>
+                            <div class="modal fade" id="modalEditRec{{ r.id }}" tabindex="-1"><div class="modal-dialog"><form method="POST" action="{{ url_for('editar_receita', id=r.id) }}"><div class="modal-content"><div class="modal-header bg-warning"><h5>Editar</h5></div><div class="modal-body"><input type="text" class="form-control mb-2" name="descricao" value="{{ r.descricao }}"><input type="number" step="0.01" class="form-control mb-2" name="valor" value="{{ r.valor }}"><input type="date" class="form-control mb-2" name="vencimento" value="{{ r.data_vencimento }}"><select class="form-select mb-2" name="categoria"><option>Venda Extra</option><option>Outros</option></select><textarea class="form-control" name="observacao">{{ r.observacao }}</textarea></div><div class="modal-footer"><button type="submit" class="btn btn-warning">Salvar</button></div></div></form></div></div>
+                        {% else %}<tr><td colspan="5" class="text-center text-muted">Nenhuma receita encontrada.</td></tr>{% endfor %}</tbody>
                     </table>
                 </div>
             </div>
 
             <div id="cap" class="tab-pane {% if active_tab == 'cap' %}d-block{% else %}d-none{% endif %}">
-                <form method="POST" action="{{ url_for('financeiro') }}" class="mb-3 bg-light p-3 rounded border">
+                
+                {# NOVO RESUMO CONDICIONAL - A PAGAR #}
+                {% if cap_status == 'TODOS' %}
+                    {# VISUALIZAÇÃO 1: DIVIDIDA (Quando STATUS é TODOS) #}
+                    <div class="row mb-3 g-2 align-items-center bg-light p-3 rounded border">
+                        <div class="col-md-6 text-center border-end">
+                            <span class="d-block small text-muted">Total A Pagar (No Período)</span>
+                            <span class="d-block fw-bold text-danger">R$ {{ '%.2f'|format(total_desp_pendente_filtrado) }}</span>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <span class="d-block small text-muted">Total Pago (No Período)</span>
+                            <span class="d-block fw-bold text-success">R$ {{ '%.2f'|format(total_desp_pago_filtrado) }}</span>
+                        </div>
+                    </div>
+                {% else %}
+                    {# VISUALIZAÇÃO 2: ÚNICA (Quando STATUS é PENDENTE ou PAGO) #}
+                    <div class="row mb-3 g-2 align-items-center bg-light p-3 rounded border">
+                        <div class="col-12 text-center">
+                            {% set is_pendente = cap_status == 'PENDENTE' %}
+                            <span class="d-block small text-muted">Total {{ 'A Pagar' if is_pendente else 'Pago' }} (No Período)</span>
+                            <span class="d-block fw-bold text-{{ 'danger' if is_pendente else 'success' }} fs-4">
+                                R$ {{ '%.2f'|format(total_desp_pendente_filtrado) if is_pendente else '%.2f'|format(total_desp_pago_filtrado) }}
+                            </span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# NOVO FORMULÁRIO COM LÓGICA FILTRAR/LIMPAR #}
+                {% set is_filtered_cap = cap_ini|default('') and cap_ini != '1900-01-01' or cap_fim|default('') and cap_fim != '2100-01-01' %}
+                <form method="POST" action="{{ url_for('financeiro') }}" id="form-cap" class="mb-3 bg-light p-3 rounded border">
                     <input type="hidden" name="active_tab" value="cap">
                     <div class="row g-2 align-items-end">
-                        <div class="col-md-3"><label class="small">De</label><input type="date" id="cap_ini" name="cap_ini" class="form-control form-control-sm" value=""></div>
-                        <div class="col-md-3"><label class="small">Até</label><input type="date" id="cap_fim" name="cap_fim" class="form-control form-control-sm" value=""></div>
-                        <div class="col-md-3"><label class="small">Status</label><select id="cap_status" name="cap_status" class="form-select form-select-sm"><option value="TODOS">Todos</option><option value="PENDENTE">Pendentes</option><option value="PAGO">Pagos</option></select></div>
-                        <div class="col-md-2"><button type="submit" class="btn btn-sm btn-primary w-100">Filtrar</button></div>
-                        <div class="col-md-1 text-end"><button type="button" class="btn btn-sm btn-danger w-100" data-bs-toggle="modal" data-bs-target="#modalNewDesp">+</button></div>
+                        <div class="col-md-3"><label class="small">De</label><input type="date" id="cap_ini" name="cap_ini" class="form-control form-control-sm" value="{{ cap_ini|default('') if cap_ini != '1900-01-01' else '' }}"></div>
+                        <div class="col-md-3"><label class="small">Até</label><input type="date" id="cap_fim" name="cap_fim" class="form-control form-control-sm" value="{{ cap_fim|default('') if cap_fim != '2100-01-01' else '' }}"></div>
+                        
+                        {# Botão Filtrar/Limpar #}
+                        <div class="col-md-2">
+                            <button type="button" id="btn-cap" onclick="gerenciarFiltro('cap')" class="btn btn-sm w-100 {{ 'btn-secondary' if is_filtered_cap else 'btn-primary' }}">
+                                {{ 'Limpar' if is_filtered_cap else 'Filtrar' }}
+                            </button>
+                        </div>
+                        
+                        <div class="col-md-3"><label class="small">Status</label><select id="cap_status" name="cap_status" class="form-select form-control-sm">
+                            <option value="PENDENTE" {% if cap_status == 'PENDENTE' %}selected{% endif %}>Pendentes</option>
+                            <option value="PAGO" {% if cap_status == 'PAGO' %}selected{% endif %}>Pagos</option>
+                            <option value="TODOS" {% if cap_status == 'TODOS' %}selected{% endif %}>Todos</option>
+                        </select></div>
+                        
+                        <div class="col-md-1 text-end">
+                            <button type="button" class="btn btn-sm btn-danger w-100" data-bs-toggle="modal" data-bs-target="#modalNewDesp">+</button>
+                        </div>
                     </div>
                 </form>
                 
-                <div class="mb-3"><input type="text" id="buscaDesp" class="form-control w-25" placeholder="Buscar..." onkeyup="filtrarTabela('buscaDesp', 'cap_ini', 'cap_fim', 'tabelaDesp', 'cap_status')"></div>
+                <div class="mb-3"><input type="text" id="buscaDesp" class="form-control w-25" placeholder="Buscar..." onkeyup="filtrarTabela('buscaDesp', 'tabelaDesp', 'cap_status')"></div>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle" id="tabelaDesp">
-                        <thead class="table-light"><tr><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead>
-                        <tbody>{% for d in despesas %}<tr><td>{{ d.descricao }}{% if d.recorrente %}<i class="bi bi-arrow-repeat ms-1"></i>{% endif %}</td><td>{{ d.data_vencimento|format_datetime('%d/%m/%Y') }}</td><td class="text-danger fw-bold">{{ '%.2f'|format(d.valor) }}</td><td><span class="badge {% if d.status=='PAGO' %}bg-success{% else %}bg-warning text-dark{% endif %} status-badge">{{ d.status }}</span></td><td>{% if d.status!='PAGO' %}<button class="btn btn-sm btn-success" onclick="confirmarAcao('Pagar','{{ url_for('pagar_despesa', id=d.id) }}')"><i class="bi bi-check-lg"></i></button> <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditDesp{{ d.id }}"><i class="bi bi-pencil"></i></button>{% endif %} {% if d.recorrente %}<button class="btn btn-sm btn-outline-danger" onclick="confirmarExclusaoRecorrente('{{ url_for('excluir_despesa', id=d.id, modo='unico') }}', '{{ url_for('excluir_despesa', id=d.id, modo='todos') }}')"><i class="bi bi-trash"></i></button>{% else %}<button class="btn btn-sm btn-outline-danger" onclick="confirmarAcao('Excluir','{{ url_for('excluir_despesa', id=d.id, modo='unico') }}', true)"><i class="bi bi-trash"></i></button>{% endif %}</td></tr><div class="modal fade" id="modalEditDesp{{ d.id }}" tabindex="-1"><div class="modal-dialog"><form method="POST" action="{{ url_for('editar_despesa', id=d.id) }}"><div class="modal-content"><div class="modal-header bg-warning"><h5>Editar</h5></div><div class="modal-body"><input type="text" class="form-control mb-2" name="descricao" value="{{ d.descricao }}"><input type="number" step="0.01" class="form-control mb-2" name="valor" value="{{ d.valor }}"><input type="date" class="form-control mb-2" name="vencimento" value="{{ d.data_vencimento }}"><select class="form-select mb-2" name="categoria"><option value="Contas">Contas</option><option value="Aluguel">Aluguel</option></select><textarea class="form-control mb-2" name="observacao">{{ d.observacao }}</textarea></div><div class="modal-footer"><button type="submit" class="btn btn-warning">Salvar</button></div></div></form></div></div>{% else %}<tr><td colspan="5" class="text-center text-muted">Nenhuma despesa encontrada.</td></tr>{% endfor %}</tbody>
+                        <thead class="table-light"><tr><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th class="text-center">Ações</th></tr></thead>
+                        <tbody>{% for d in despesas %}
+                            {# Checagem de Atraso e Adiantamento para ícone e cor do badge #}
+                            {% set is_delayed = "(Lançamento realizado após a data original:" in d.observacao|default('') %}
+                            {% set is_adiantado = "Lançamento baixado adiantado." in d.observacao|default('') %}
+                            <tr data-vencimento="{{ d.data_vencimento }}" data-status="{{ d.status }}">
+                                <td>
+                                    {{ d.descricao }}{% if d.recorrente %}<i class="bi bi-arrow-repeat ms-1"></i>{% endif %}
+                                </td>
+                                <td>{{ d.data_vencimento|format_datetime('%d/%m/%Y') }}</td>
+                                <td class="text-danger fw-bold">{{ '%.2f'|format(d.valor) }}</td>
+                                <td>
+                                    {# Lógica de cor do badge de status #}
+                                    {% set badge_class = 'bg-success' %}
+                                    {% if d.status=='PENDENTE' %}{% set badge_class = 'bg-warning text-dark' %}
+                                    {% elif d.status=='PAGO' and is_delayed %}{% set badge_class = 'bg-danger text-white' %}
+                                    {% elif d.status=='PAGO' and is_adiantado %}{% set badge_class = 'bg-info text-white' %}
+                                    {% endif %}
+                                    
+                                    <span class="badge {{ badge_class }} status-badge">{{ d.status }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                        {# Pagar (Azul Sólido) #}
+                                        <div style="min-width: 100px; height: 31px;">
+                                            {% if d.status!='PAGO' %}
+                                            <button class="btn btn-sm btn-primary w-100" onclick="confirmarAcao('Pagar','{{ url_for('pagar_despesa', id=d.id) }}', false, '{{ d.data_vencimento }}')">
+                                                <i class="bi bi-cash-coin"></i> Pagar
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {# Editar (Amarelo Sólido) #}
+                                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditDesp{{ d.id }}"><i class="bi bi-pencil-square"></i></button>
+                                        
+                                        {# Excluir #}
+                                        {% if d.recorrente %}
+                                        <button class="btn btn-sm btn-danger" onclick="confirmarExclusaoRecorrente('{{ url_for('excluir_despesa', id=d.id, modo='unico') }}', '{{ url_for('excluir_despesa', id=d.id, modo='todos') }}')"><i class="bi bi-trash"></i></button>
+                                        {% else %}
+                                        <button class="btn btn-sm btn-danger" onclick="confirmarAcao('Excluir','{{ url_for('excluir_despesa', id=d.id, modo='unico') }}', true, null)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            <div class="modal fade" id="modalEditDesp{{ d.id }}" tabindex="-1"><div class="modal-dialog"><form method="POST" action="{{ url_for('editar_despesa', id=d.id) }}"><div class="modal-content"><div class="modal-header bg-warning"><h5>Editar</h5></div><div class="modal-body"><input type="text" class="form-control mb-2" name="descricao" value="{{ d.descricao }}"><input type="number" step="0.01" class="form-control mb-2" name="valor" value="{{ d.valor }}"><input type="date" class="form-control mb-2" name="vencimento" value="{{ d.data_vencimento }}"><select class="form-select mb-2" name="categoria"><option value="Contas">Contas</option><option value="Aluguel">Aluguel</option></select><textarea class="form-control mb-2" name="observacao">{{ d.observacao }}</textarea></div><div class="modal-footer"><button type="submit" class="btn btn-warning">Salvar</button></div></div></form></div></div>
+                        {% else %}<tr><td colspan="5" class="text-center text-muted">Nenhuma despesa encontrada.</td></tr>{% endfor %}</tbody>
                     </table>
                 </div>
             </div>
 
             <div id="caixa" class="tab-pane {% if active_tab == 'caixa' %}d-block{% else %}d-none{% endif %}">
-                <form method="POST" action="{{ url_for('financeiro') }}" class="mb-3 bg-light p-3 rounded border">
+                {# NOVO FORMULÁRIO COM LÓGICA FILTRAR/LIMPAR #}
+                {% set is_filtered_caixa = caixa_ini|default('') and caixa_ini != '1900-01-01' or caixa_fim|default('') or caixa_op != 'TODOS' %}
+                <form method="POST" action="{{ url_for('financeiro') }}" id="form-caixa" class="mb-3 bg-light p-3 rounded border">
                     <input type="hidden" name="active_tab" value="caixa">
                     <div class="row g-2 align-items-end">
                         <div class="col-12 mb-2 d-flex justify-content-around border-bottom pb-2"><span class="text-success fw-bold">Vendas: R$ {{ '%.2f'|format(total_vendas_caixa) }}</span><span class="text-dark fw-bold">Acumulado: R$ {{ '%.2f'|format(total_acumulado_caixa) }}</span></div>
-                        <div class="col-md-3"><label class="small">De</label><input type="date" name="caixa_ini" class="form-control form-control-sm" value=""></div>
-                        <div class="col-md-3"><label class="small">Até</label><input type="date" name="caixa_fim" class="form-control form-control-sm" value=""></div>
-                        <div class="col-md-3"><label class="small">Operador</label><select name="caixa_op" class="form-select form-select-sm"><option value="TODOS">Todos</option>{% for u in usuarios %}<option value="{{ u.id }}">{{ u.nome }}</option>{% endfor %}</select></div>
-                        <div class="col-md-3"><button type="submit" class="btn btn-sm btn-primary w-100">Filtrar</button></div>
+                        
+                        <div class="col-md-3"><label class="small">De</label><input type="date" id="caixa_ini" name="caixa_ini" class="form-control form-control-sm" value="{{ caixa_ini|default('') if caixa_ini != '1900-01-01' else '' }}"></div>
+                        <div class="col-md-3"><label class="small">Até</label><input type="date" id="caixa_fim" name="caixa_fim" class="form-control form-control-sm" value="{{ caixa_fim|default('') }}"></div>
+                        
+                        <div class="col-md-3"><label class="small">Operador</label>
+                            <select name="caixa_op" id="caixa_op" class="form-select form-control-sm">
+                                <option value="TODOS" {% if caixa_op == 'TODOS' %}selected{% endif %}>Todos</option>
+                                {% for u in usuarios %}
+                                    <option value="{{ u.id }}" {% if u.id|string == caixa_op %}selected{% endif %}>{{ u.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" id="btn-caixa" onclick="gerenciarFiltro('caixa')" class="btn btn-sm w-100 {{ 'btn-secondary' if is_filtered_caixa else 'btn-primary' }}">
+                                {{ 'Limpar' if is_filtered_caixa else 'Filtrar' }}
+                            </button>
+                        </div>
                     </div>
                 </form>
                 <div class="table-responsive">
@@ -218,21 +534,304 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalNewRec" tabindex="-1"><div class="modal-dialog"><form method="POST" action="{{ url_for('nova_receita') }}"><div class="modal-content"><div class="modal-header bg-success text-white"><h5>Nova Receita</h5></div><div class="modal-body"><input type="text" class="form-control mb-2" name="descricao" placeholder="Descrição" required><div class="row"><div class="col-6"><input type="number" step="0.01" class="form-control" name="valor" placeholder="Valor" required></div><div class="col-6"><input type="date" class="form-control" name="vencimento" required></div></div><select class="form-select mb-2" name="categoria"><option>Venda Extra</option><option>Outros</option></select><textarea class="form-control mb-2" name="observacao" placeholder="Obs"></textarea><div class="row"><div class="col-8"><select class="form-select" name="tipo_recorrencia"><option value="NÃO">Não Repetir</option><option value="MENSAL">Mensal</option><option value="SEMANAL">Semanal</option><option value="QUINZENAL">Quinzenal</option><option value="DIARIA">Diária</option><option value="ANUAL">Anual</option></select></div><div class="col-4"><input type="number" name="qtd_repeticoes" class="form-control" value="1"></div></div></div><div class="modal-footer"><button type="submit" class="btn btn-success">Salvar</button></div></div></form></div></div>
-<div class="modal fade" id="modalNewDesp" tabindex="-1"><div class="modal-dialog"><form method="POST" action="{{ url_for('nova_despesa') }}"><div class="modal-content"><div class="modal-header bg-danger text-white"><h5>Nova Despesa</h5></div><div class="modal-body"><input type="text" class="form-control mb-2" name="descricao" placeholder="Descrição" required><div class="row"><div class="col-6"><input type="number" step="0.01" class="form-control" name="valor" placeholder="Valor" required></div><div class="col-6"><input type="date" class="form-control" name="vencimento" required></div></div><select class="form-select mb-2" name="categoria"><option>Contas</option><option>Aluguel</option><option>Outros</option></select><textarea class="form-control mb-2" name="observacao" placeholder="Obs"></textarea><div class="row"><div class="col-8"><select class="form-select" name="tipo_recorrencia"><option value="NÃO">Não Repetir</option><option value="MENSAL">Mensal</option><option value="SEMANAL">Semanal</option><option value="QUINZENAL">Quinzenal</option><option value="DIARIA">Diária</option><option value="ANUAL">Anual</option></select></div><div class="col-4"><input type="number" name="qtd_repeticoes" class="form-control" value="1"></div></div></div><div class="modal-footer"><button type="submit" class="btn btn-danger">Salvar</button></div></div></form></div></div>
+<div class="modal fade" id="modalNewRec" tabindex="-1"><div class="modal-dialog"><form method="POST" action="{{ url_for('nova_receita') }}"><div class="modal-content"><div class="modal-header bg-success text-white"><h5>Nova Receita</h5></div><div class="modal-body"><input type="text" class="form-control mb-2" name="descricao" placeholder="Descrição" required><div class="row"><div class="col-6"><input type="number" step="0.01" class="form-control" name="valor" placeholder="Valor" required></div><div class="col-6"><input type="date" class="form-control" name="vencimento" required></div></div><select class="form-select mb-2" name="categoria"><option>Venda Extra</option><option>Outros</option></select><textarea class="form-control" name="observacao" placeholder="Obs"></textarea><div class="row"><div class="col-8"><select class="form-select" name="tipo_recorrencia"><option value="NÃO">Não Repetir</option><option value="MENSAL">Mensal</option><option value="SEMANAL">Semanal</option><option value="QUINZENAL">Quinzenal</option><option value="DIARIA">Diária</option><option value="ANUAL">Anual</option></select></div><div class="col-4"><input type="number" name="qtd_repeticoes" class="form-control" value="1"></div></div></div><div class="modal-footer"><button type="submit" class="btn btn-success">Salvar</button></div></div></form></div></div>
+<div class="modal fade" id="modalNewDesp" tabindex="-1"><div class="modal-dialog"><form method="POST" action="{{ url_for('nova_despesa') }}"><div class="modal-content"><div class="modal-header bg-danger text-white"><h5>Nova Despesa</h5></div><div class="modal-body"><input type="text" class="form-control mb-2" name="descricao" placeholder="Descrição" required><div class="row"><div class="col-6"><input type="number" step="0.01" class="form-control" name="valor" placeholder="Valor" required></div><div class="col-6"><input type="date" class="form-control" name="vencimento" required></div></div><select class="form-select mb-2" name="categoria"><option>Contas</option><option value="Aluguel">Aluguel</option></select><textarea class="form-control mb-2" name="observacao" placeholder="Obs"></textarea><div class="row"><div class="col-8"><select class="form-select" name="tipo_recorrencia"><option value="NÃO">Não Repetir</option><option value="MENSAL">Mensal</option><option value="SEMANAL">Semanal</option><option value="QUINZENAL">Quinzenal</option><option value="DIARIA">Diária</option><option value="ANUAL">Anual</option></select></div><div class="col-4"><input type="number" name="qtd_repeticoes" class="form-control" value="1"></div></div></div><div class="modal-footer"><button type="submit" class="btn btn-danger">Salvar</button></div></div></form></div></div>
 <div class="modal fade" id="modalConfirmacao" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white" id="modalHeaderColor"><h5 class="modal-title" id="modalTitulo">Confirmação</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p id="modalMensagem">Tem certeza?</p></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><a href="#" id="modalBtnConfirmar" class="btn btn-primary">Confirmar</a></div></div></div></div>
 <div class="modal fade" id="modalRecorrente" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-warning text-dark"><h5>Recorrente</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p>Item recorrente. O que excluir?</p><div class="d-grid gap-2"><a href="#" id="btnExcluirUm" class="btn btn-outline-secondary">Apenas este</a><a href="#" id="btnExcluirTodos" class="btn btn-danger fw-bold">Todos futuros</a></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button></div></div></div></div>
 
 <script>
-    function switchTab(tab) {document.querySelectorAll('.tab-pane').forEach(p=>{p.classList.remove('d-block','show','active');p.classList.add('d-none')});document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));document.getElementById(tab).classList.remove('d-none');document.getElementById(tab).classList.add('d-block','show','active');event.target.classList.add('active');}
-    function filtrarTabela(inputId,dateIniId,dateFimId,tabelaId,selectStatusId=null){const input=document.getElementById(inputId);const dtIni=dateIniId?document.getElementById(dateIniId):null;const dtFim=dateFimId?document.getElementById(dateFimId):null;const select=selectStatusId?document.getElementById(selectStatusId):null;const tabela=document.getElementById(tabelaId);const linhas=tabela.getElementsByTagName('tbody')[0].getElementsByTagName('tr');function filtrar(){const termo=input.value.toLowerCase();const status=select?select.value:"";const inicio=dtIni&&dtIni.value?dtIni.value:null;const fim=dtFim&&dtFim.value?dtFim.value:null;for(let i=0;i<linhas.length;i++){const linha=linhas[i];const texto=linha.innerText.toLowerCase();const badge=linha.querySelector('.status-badge');const statusTexto=badge?badge.innerText.trim():'';const matchTexto=termo===""||texto.includes(termo);const matchStatus=status===""||statusTexto===status;let matchData=true;const dataVenc=linha.getAttribute('data-vencimento');if(dtIni&&dtFim&&dataVenc){if(inicio&&dataVenc<inicio)matchData=false;if(fim&&dataVenc>fim)matchData=false;}linha.style.display=(matchTexto&&matchStatus&&matchData)?"":"none";}}input.addEventListener('keyup',filtrar);if(select)select.addEventListener('change',filtrar);if(dtIni)dtIni.addEventListener('change',filtrar);if(dtFim)dtFim.addEventListener('change',filtrar);}
-    function confirmarAcao(acao,url,isDelete=false){const modal=new bootstrap.Modal(document.getElementById('modalConfirmacao'));document.getElementById('modalTitulo').innerText=acao;document.getElementById('modalMensagem').innerText=`Confirmar ${acao}?`;document.getElementById('modalBtnConfirmar').href=url;const header=document.getElementById('modalHeaderColor');const btn=document.getElementById('modalBtnConfirmar');if(isDelete){header.className='modal-header bg-danger text-white';btn.className='btn btn-danger';btn.innerText='Excluir';}else{header.className='modal-header bg-success text-white';btn.className='btn btn-success';btn.innerText='Confirmar';}modal.show();}
+    // Mapeamento dos filtros para uso no JavaScript
+    const FILTER_MAP = {
+        'vendas': { ini: 'vendas_ini', fim: 'vendas_fim', select: null },
+        'car': { ini: 'car_ini', fim: 'car_fim', select: 'car_status' },
+        'cap': { ini: 'cap_ini', fim: 'cap_fim', select: 'cap_status' },
+        'caixa': { ini: 'caixa_ini', fim: 'caixa_fim', select: 'caixa_op' }
+    };
+
+    // Valores padrão para detecção de filtro ativo no JS (devem corresponder aos do app.py)
+    const DEFAULT_START_DATE = '1900-01-01'; // PASSADO_DISTANTE_SQL
+    const DEFAULT_END_DATE = '2100-01-01'; // MAX_SQL_DATE
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-pane').forEach(p => { p.classList.remove('d-block', 'show', 'active'); p.classList.add('d-none') });
+        document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+        document.getElementById(tab).classList.remove('d-none');
+        document.getElementById(tab).classList.add('d-block', 'show', 'active');
+        document.getElementById(`${tab}-tab`).classList.add('active'); 
+    }
+    
+    // CORREÇÃO DA BUSCA LOCAL: Simplificada para depender apenas do input e da tabela.
+    function filtrarTabela(inputId, tabelaId, selectStatusId = null) {
+        const input = document.getElementById(inputId);
+        const select = selectStatusId ? document.getElementById(selectStatusId) : null;
+        const tabela = document.getElementById(tabelaId);
+        
+        if (!tabela || !input) return;
+
+        const linhas = tabela.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        
+        function realizarFiltro() {
+            const termo = input.value.toLowerCase();
+            const status = select ? select.value : "";
+            
+            for (let i = 0; i < linhas.length; i++) {
+                const linha = linhas[i];
+                
+                // Ignora linhas que são cabeçalhos ou divisores
+                if (linha.children.length < 3) continue; 
+                
+                const texto = linha.innerText.toLowerCase();
+                
+                // 1. Filtragem de Texto
+                const matchTexto = termo === "" || texto.includes(termo);
+                
+                // 2. Filtragem de Status (se houver o campo de seleção)
+                let matchStatus = true;
+                if (select && status && status !== 'TODOS') {
+                    const statusAttr = linha.getAttribute('data-status');
+                    if (statusAttr) {
+                        matchStatus = statusAttr === status;
+                    }
+                }
+                
+                // Exibe ou oculta a linha
+                if (linha.classList.contains('text-muted') && termo !== "") {
+                    linha.style.display = "none";
+                } else {
+                    linha.style.display = (matchTexto && matchStatus) ? "" : "none";
+                }
+            }
+        }
+        
+        realizarFiltro();
+        input.onkeyup = realizarFiltro;
+        if (select) {
+            select.onchange = realizarFiltro;
+        }
+    }
+    
+    // --- Lógica Botão Híbrido Filtrar/Limpar V2 (CORRIGIDA) ---
+
+    /**
+     * Verifica o estado do filtro de uma aba e atualiza o botão.
+     * @param {string} aba - O nome da aba.
+     * @returns {void}
+     */
+    function updateFilterButtonState(aba) {
+        const config = FILTER_MAP[aba];
+        const btn = document.getElementById(`btn-${aba}`);
+        const inputIni = document.getElementById(config.ini);
+        const inputFim = document.getElementById(config.fim);
+        const selectElement = config.select ? document.getElementById(config.select) : null;
+        
+        if (!btn || !inputIni || !inputFim) return;
+
+        // 1. Checa a filtragem de datas: Se os campos de data estão preenchidos OU são diferentes dos padrões de busca histórica
+        const isDateFiltered = (inputIni.value !== '' && inputIni.value !== DEFAULT_START_DATE) || 
+                             (inputFim.value !== '' && inputFim.value !== DEFAULT_END_DATE); 
+        
+        // 2. Checa o filtro de Operador (apenas para a aba Caixa)
+        let isOpFiltered = (aba === 'caixa' && selectElement && selectElement.value !== 'TODOS');
+
+        // O botão muda para Limpar (cinza) se houver filtro de data OU filtro de operador do caixa (que não é uma seleção de status)
+        const isFiltered = isDateFiltered || isOpFiltered; 
+
+        if (isFiltered) {
+            btn.innerText = 'Limpar';
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-secondary');
+        } else {
+            btn.innerText = 'Filtrar';
+            btn.classList.remove('btn-secondary');
+            btn.classList.add('btn-primary');
+        }
+    }
+
+
+    /**
+     * Gerencia a ação do botão Filtrar/Limpar.
+     * @param {string} aba - O nome da aba.
+     */
+    function gerenciarFiltro(aba) {
+        const form = document.getElementById(`form-${aba}`);
+        const btn = document.getElementById(`btn-${aba}`);
+        
+        const config = FILTER_MAP[aba];
+        const inputIni = document.getElementById(config.ini);
+        const inputFim = document.getElementById(config.fim);
+        const selectElement = config.select ? document.getElementById(config.select) : null;
+        
+        if (btn.innerText.trim() === 'Limpar') {
+            // Ação de Limpar: Limpa campos de data e reseta APENAS o select do CAIXA
+            if (inputIni) inputIni.value = '';
+            if (inputFim) inputFim.value = '';
+            
+            // Reseta o filtro de Operador do Caixa para "TODOS"
+            if (selectElement && aba === 'caixa') {
+                selectElement.value = 'TODOS'; 
+            }
+
+            // O status (car/cap) não é resetado aqui, mantendo o último filtro de status ativo.
+            
+            form.submit(); 
+        } else {
+            // Ação de Filtrar: Simplesmente submete o formulário com os valores atuais
+            form.submit();
+        }
+    }
+
+    /**
+     * Adiciona listeners nos campos para alternar o botão Limpar -> Filtrar (V2).
+     */
+    function setupFilterListeners() {
+        ['vendas', 'car', 'cap', 'caixa'].forEach(aba => {
+            const config = FILTER_MAP[aba];
+            const inputIni = document.getElementById(config.ini);
+            const inputFim = document.getElementById(config.fim);
+            const selectElement = config.select ? document.getElementById(config.select) : null;
+            const btn = document.getElementById(`btn-${aba}`);
+
+            // Listener para datas: se o botão é Limpar e a data é alterada, reverte para Filtrar
+            if (inputIni) {
+                inputIni.addEventListener('change', () => { 
+                    if (btn.innerText.trim() === 'Limpar') {
+                        btn.innerText = 'Filtrar';
+                        btn.classList.remove('btn-secondary');
+                        btn.classList.add('btn-primary');
+                    }
+                });
+            }
+            
+            if (inputFim) {
+                inputFim.addEventListener('change', () => { 
+                    if (btn.innerText.trim() === 'Limpar') {
+                        btn.innerText = 'Filtrar';
+                        btn.classList.remove('btn-secondary');
+                        btn.classList.add('btn-primary');
+                    }
+                });
+            }
+
+            // Listener para Select (Status/Operador)
+            if (selectElement) {
+                 selectElement.addEventListener('change', (e) => {
+                    // Se a aba for CAIXA e o botão é Limpar, reverte para Filtrar (pois o filtro de operador também aciona o Limpar)
+                    if (aba === 'caixa' && btn.innerText.trim() === 'Limpar') {
+                        btn.innerText = 'Filtrar';
+                        btn.classList.remove('btn-secondary');
+                        btn.classList.add('btn-primary');
+                    }
+                    // Submete o formulário automaticamente para filtros de Status/Operador
+                    e.target.closest('form').submit();
+                 });
+            }
+        });
+    }
+
+    // --- FUNÇÃO AUXILIAR E MODAL DE ATRASO/ADIANTAMENTO ---
+    function getTodayDateStr() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function confirmarAcao(acao, url, isDelete = false, dataVencimento = null) {
+        const modal = new bootstrap.Modal(document.getElementById('modalConfirmacao'));
+        const modalTitulo = document.getElementById('modalTitulo');
+        const modalMensagem = document.getElementById('modalMensagem');
+        const btnConfirmar = document.getElementById('modalBtnConfirmar');
+        const header = document.getElementById('modalHeaderColor');
+
+        const hoje = getTodayDateStr();
+        let isAtrasado = false;
+        let isAdiantado = false;
+        
+        if (dataVencimento && dataVencimento < hoje) {
+            isAtrasado = true;
+        } else if (dataVencimento && dataVencimento > hoje) {
+            isAdiantado = true; // Novo: Lançamento Adiantado
+        }
+
+        // --- Configura o Título e Ação ---
+        modalTitulo.innerText = acao;
+        btnConfirmar.href = url;
+        btnConfirmar.innerText = isDelete ? 'Excluir' : 'Confirmar';
+        btnConfirmar.classList.remove('btn-primary', 'btn-success', 'btn-danger', 'btn-warning', 'btn-info', 'text-dark', 'text-white'); // Limpa classes
+
+        if (isDelete) {
+            // Ação de Excluir
+            header.className = 'modal-header bg-danger text-white';
+            btnConfirmar.className = 'btn btn-danger';
+            modalMensagem.innerHTML = `Tem certeza que deseja ${acao.toLowerCase()} este item?`;
+            
+        } else if (isAtrasado) {
+            // Ação Receber/Pagar ATRASADA 
+            header.className = 'modal-header bg-warning text-dark';
+            btnConfirmar.className = 'btn btn-warning text-dark';
+            
+            const hojeDisplay = hoje.split('-').reverse().join('/'); 
+            
+            modalMensagem.innerHTML = `
+                <div class="alert alert-danger p-2 mb-2">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> 
+                    **ATENÇÃO:** Lançamento está ATRASADO!
+                </div>
+                O sistema registrará a baixa com a data de hoje (**${hojeDisplay}**), e não com a data de vencimento original.
+                <br><br>
+                **Confirmar ${acao}?**
+            `;
+            
+        } else if (isAdiantado) {
+            // Novo: Ação Receber/Pagar ADIANTADA
+            header.className = 'modal-header bg-info text-white'; // Cor azul/ciano para adiantamento
+            btnConfirmar.className = 'btn btn-info text-white';
+            
+            const vencimentoDisplay = dataVencimento.split('-').reverse().join('/'); 
+
+            modalMensagem.innerHTML = `
+                <div class="alert alert-info p-2 mb-2">
+                    <i class="bi bi-calendar-check me-2"></i> 
+                    **AVISO:** Lançamento ADIANTADO.
+                </div>
+                O sistema registrará a baixa hoje (**${hoje.split('-').reverse().join('/')}**), sendo que o vencimento original era **${vencimentoDisplay}**.
+                <br><br>
+                **Confirmar ${acao}?**
+            `;
+            
+        } else {
+            // Ação Receber/Pagar EM DIA (ou na mesma data)
+            header.className = 'modal-header bg-success text-white';
+            btnConfirmar.className = 'btn btn-success';
+            modalMensagem.innerHTML = `Confirmar ${acao}?`;
+        }
+
+        modal.show();
+    }
+    
     function confirmarExclusaoRecorrente(urlUm,urlTodos){const modal=new bootstrap.Modal(document.getElementById('modalRecorrente'));document.getElementById('btnExcluirUm').href=urlUm;document.getElementById('btnExcluirTodos').href=urlTodos;modal.show();}
-    document.addEventListener('DOMContentLoaded',()=>{const urlParams=new URLSearchParams(window.location.search);const tab=urlParams.get('tab');if(tab){const tabBtn=document.querySelector(`#${tab}-tab`);if(tabBtn){const bsTab=new bootstrap.Tab(tabBtn);bsTab.show();}}
-    // Estas chamadas não são mais estritamente necessárias se os filtros forem vazios, mas mantidas por segurança.
-    // filtrarTabela('buscaMensal',null,null,'tabelaMensal','filtroStatusMensal');
-    // filtrarTabela('buscaReceita','car_ini','car_fim','tabelaRec','car_status');
-    // filtrarTabela('buscaDespesa','cap_ini','cap_fim','tabelaDesp','cap_status');
+
+    // Chamadas de Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        
+        if (tab) {
+            switchTab(tab); 
+        }
+        
+        // 1. Configura os listeners de filtro para alternar o botão Limpar <-> Filtrar
+        setupFilterListeners();
+        
+        // 2. Inicializa o estado visual do botão na carga da página
+        ['vendas', 'car', 'cap', 'caixa'].forEach(updateFilterButtonState);
+
+        // 3. Inicializa os filtros de tabela locais (Busca por texto)
+        filtrarTabela('buscaMensal', 'tabelaMensal', 'filtroStatusMensal');
+        filtrarTabela('buscaReceita', 'tabelaRec', 'car_status');
+        filtrarTabela('buscaDesp', 'tabelaDesp', 'cap_status');
+        filtrarTabela('buscaVendas', 'tabelaVendas');
     });
 </script>
 {% endblock %}

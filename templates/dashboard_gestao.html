@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+{% block title %}Dashboard de Gestão{% endblock %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-primary"><i class="bi bi-graph-up-arrow me-2"></i>Dashboard de Gestão</h2>
+    
+    <form action="{{ url_for('gestao') }}" method="GET" class="d-flex gap-2">
+        <select name="periodo" class="form-select" onchange="this.form.submit()">
+            <option value="7" {% if periodo_selecionado == '7' %}selected{% endif %}>Últimos 7 Dias</option>
+            <option value="30" {% if periodo_selecionado == '30' %}selected{% endif %}>Últimos 30 Dias</option>
+            <option value="mes" {% if periodo_selecionado == 'mes' %}selected{% endif %}>Mês Atual</option>
+            <option value="6m" {% if periodo_selecionado == '6m' %}selected{% endif %}>Últimos 6 Meses</option>
+            <option value="12m" {% if periodo_selecionado == '12m' %}selected{% endif %}>Último Ano</option>
+        </select>
+    </form>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient-blue shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="card-label">Ocupação Atual</div>
+                        <div class="card-value">{{ ocupacao.atual }} / {{ ocupacao.total }}</div>
+                    </div>
+                    <div class="h2 font-weight-bold" style="opacity: 0.9;">{{ ocupacao.pct }}%</div>
+                </div>
+                <div class="progress mt-2" style="height: 5px; opacity: 0.8;">
+                    <div class="progress-bar bg-light" role="progressbar" style="width: {{ ocupacao.pct }}%"></div>
+                </div>
+                <i class="bi bi-car-front-fill bg-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient-green shadow-sm h-100">
+            <div class="card-body">
+                <div class="card-label">Receita (Período)</div>
+                <div class="card-value">R$ {{ '%.2f'|format(kpis.receita) }}</div>
+                <i class="bi bi-graph-up-arrow bg-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient-cyan shadow-sm h-100">
+            <div class="card-body">
+                <div class="card-label">Ticket Médio</div>
+                <div class="card-value">R$ {{ '%.2f'|format(kpis.ticket_medio) }}</div>
+                <i class="bi bi-receipt bg-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient-yellow shadow-sm h-100">
+            <div class="card-body">
+                <div class="card-label">Saldo Consolidado</div>
+                <div class="card-value {{ 'text-success' if (fluxo.receitas - fluxo.despesas) > 0 else 'text-danger' }}">
+                    R$ {{ '%.2f'|format(fluxo.receitas - fluxo.despesas) }}
+                </div>
+                <small class="opacity-75">Ent: {{ '%.0f'|format(fluxo.receitas) }} | Sai: {{ '%.0f'|format(fluxo.despesas) }}</small>
+                <i class="bi bi-wallet2 bg-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        position: relative;
+        border-radius: 8px;
+        padding: 20px;
+        color: #fff;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .stat-card .card-label { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; opacity: 0.9; letter-spacing: 0.5px; margin-bottom: 4px; z-index: 2; }
+    .stat-card .card-value { font-size: 1.6rem; font-weight: 800; z-index: 2; }
+    .stat-card .bg-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 3.5rem; opacity: 0.25; z-index: 1; }
+
+    /* Gradientes */
+    .bg-gradient-blue { background: linear-gradient(45deg, #2563eb, #3b82f6); }
+    .bg-gradient-green { background: linear-gradient(45deg, #15803d, #22c55e); }
+    .bg-gradient-cyan { background: linear-gradient(45deg, #0891b2, #06b6d4); }
+    .bg-gradient-yellow { background: linear-gradient(45deg, #ca8a04, #eab308); color: #fff; }
+</style>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Fluxo de Veículos (Período)</h6>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary" onclick="updateChartType(chartDia, 'bar')"><i class="bi bi-bar-chart-fill"></i></button>
+                    <button class="btn btn-outline-secondary" onclick="updateChartType(chartDia, 'line')"><i class="bi bi-graph-up"></i></button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-area" style="height: 300px;">
+                    <canvas id="myAreaChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Carros x Motos</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2" style="height: 300px;">
+                    <canvas id="myPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Perfil de Cliente</h6>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary" onclick="updateChartType(chartCli, 'doughnut')"><i class="bi bi-pie-chart-fill"></i></button>
+                    <button class="btn btn-outline-secondary" onclick="updateChartType(chartCli, 'bar')"><i class="bi bi-bar-chart"></i></button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div style="height: 250px;">
+                    <canvas id="chartClientes"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Contas a Pagar x Receber</h6>
+            </div>
+            <div class="card-body">
+                <div style="height: 250px;">
+                    <canvas id="chartFinanceiro"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Configuração Global de Cores
+    Chart.defaults.font.family = "'Nunito', sans-serif";
+    const colors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'];
+
+    // 1. Gráfico de Fluxo Diário
+    const ctxDia = document.getElementById("myAreaChart");
+    let chartDia = new Chart(ctxDia, {
+        type: 'line',
+        data: {
+            labels: {{ chart_dia.labels | safe }},
+            datasets: [{
+                label: "Veículos",
+                data: {{ chart_dia.values | safe }},
+                backgroundColor: "rgba(78, 115, 223, 0.05)",
+                borderColor: "rgba(78, 115, 223, 1)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                pointBorderColor: "rgba(78, 115, 223, 1)",
+                pointHoverRadius: 3,
+                tension: 0.3,
+                fill: true
+            }],
+        },
+        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+    });
+
+    // 2. Gráfico Carro x Moto
+    const ctxPie = document.getElementById("myPieChart");
+    new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+            labels: {{ chart_tipo.labels | safe }},
+            datasets: [{
+                data: {{ chart_tipo.values | safe }},
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
+                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: { maintainAspectRatio: false }
+    });
+
+    // 3. Gráfico Clientes
+    const ctxCli = document.getElementById("chartClientes");
+    let chartCli = new Chart(ctxCli, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_cli.labels | safe }},
+            datasets: [{
+                label: "Quantidade",
+                data: {{ chart_cli.values | safe }},
+                backgroundColor: ['#f6c23e', '#e74a3b'],
+            }],
+        },
+        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+    });
+
+    // 4. Gráfico Financeiro
+    const ctxFin = document.getElementById("chartFinanceiro");
+    new Chart(ctxFin, {
+        type: 'bar',
+        data: {
+            labels: ['Receitas', 'Despesas'],
+            datasets: [{
+                label: "Valor R$",
+                data: [{{ fluxo.receitas }}, {{ fluxo.despesas }}],
+                backgroundColor: ['#1cc88a', '#e74a3b'],
+                borderRadius: 5
+            }],
+        },
+        options: { 
+            maintainAspectRatio: false, 
+            indexAxis: 'y', // Barra horizontal
+            scales: { x: { beginAtZero: true } } 
+        }
+    });
+
+    // Função para Trocar Tipo de Gráfico
+    function updateChartType(chart, newType) {
+        // Destrói, muda a config e recria
+        const config = chart.config;
+        chart.destroy();
+        config.type = newType;
+        
+        // Ajustes finos se virar linha/barra
+        if(newType === 'line') {
+            config.data.datasets[0].fill = true;
+            config.data.datasets[0].tension = 0.3;
+        } else {
+            config.data.datasets[0].fill = false;
+        }
+        
+        // Recria a instância na mesma variável global (hacky mas funciona simples)
+        if(chart === chartDia) chartDia = new Chart(ctxDia, config);
+        if(chart === chartCli) chartCli = new Chart(ctxCli, config);
+    }
+</script>
+{% endblock %}

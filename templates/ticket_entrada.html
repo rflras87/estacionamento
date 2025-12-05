@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket de Entrada</title>
+    <!-- Biblioteca JS para gerar QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            width: 300px;
+            margin: 0 auto;
+            padding: 10px;
+            background-color: #fff;
+            color: #000;
+        }
+        .header { text-align: center; margin-bottom: 10px; }
+        .header h2 { margin: 0; font-size: 1.1em; font-weight: bold; }
+        .header p { margin: 2px 0; font-size: 0.8em; }
+        
+        .big-title {
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin: 10px 0;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 5px 0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .tarifas-box {
+            border: 1px dashed #000;
+            padding: 5px;
+            margin-top: 10px;
+            font-size: 0.8em;
+        }
+        .tarifas-box h4 { margin: 0 0 5px 0; text-align: center; text-transform: uppercase; }
+        .tarifas-row { display: flex; justify-content: space-between; }
+
+        .footer {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.8em;
+            border-top: 1px solid #000;
+            padding-top: 5px;
+        }
+
+        @media print { .no-print { display: none; } }
+        
+        /* Botões */
+        .actions { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .btn-print {
+            display: block; width: 100%; padding: 12px;
+            background: #000; color: #fff; border: none;
+            cursor: pointer; font-weight: bold; font-size: 1em;
+        }
+        .btn-back {
+            display: block; width: 100%; padding: 12px;
+            background: #f8f9fa; color: #000; border: 1px solid #ccc;
+            cursor: pointer; font-weight: bold; text-align: center; text-decoration: none;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>{{ estab.nome }}</h2>
+        {% if estab.endereco %}<p>{{ estab.endereco }}</p>{% endif %}
+        {% if estab.telefone %}<p>Tel: {{ estab.telefone }}</p>{% endif %}
+    </div>
+
+    <div class="big-title">ENTRADA</div>
+
+    <div class="info-row">
+        <span>PLACA:</span>
+        <span>{{ placa }}</span>
+    </div>
+    <div class="info-row">
+        <span>HORA:</span>
+        <span>{{ entrada.split(' ')[1] }}</span>
+    </div>
+    <div style="text-align: center; font-size: 0.9em;">{{ entrada.split(' ')[0] }}</div>
+
+    <!-- QR CODE (Contém a Placa para leitura rápida na saída) -->
+    <div id="qrcode"></div>
+
+    <!-- TABELA DE PREÇOS (APENAS AVULSO) -->
+    <div class="tarifas-box">
+        <h4>Tabela de Preços</h4>
+        <div class="tarifas-row">
+            <span>Carro (1ª Hora):</span>
+            <span>R$ {{ '%.2f'|format(tarifas.valor_carro) }}</span>
+        </div>
+        <div class="tarifas-row">
+            <span>Moto (1ª Hora):</span>
+            <span>R$ {{ '%.2f'|format(tarifas.valor_moto) }}</span>
+        </div>
+        <div class="tarifas-row">
+            <span>Tolerância:</span>
+            <span>{{ tarifas.tolerancia_minutos }} min</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        {% if estab.horario_funcionamento %}
+        <strong>Horário de Funcionamento:</strong><br>
+        {{ estab.horario_funcionamento }}
+        {% endif %}
+        <br><br>
+        <small>Guarde este ticket.</small>
+    </div>
+
+    <div class="actions no-print">
+        <button onclick="window.print()" class="btn-print">🖨 IMPRIMIR TICKET</button>
+        <a href="{{ url_for('listar_estacionados') }}" class="btn-back">⬅ VOLTAR AO PÁTIO</a>
+    </div>
+
+    <script>
+        // O QR Code contém apenas a placa para jogar no campo de busca na saída
+        new QRCode(document.getElementById("qrcode"), {
+            text: "{{ placa }}",
+            width: 128,
+            height: 128,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.M
+        });
+        
+        // Lógica de Impressão Automática (Se vier via redirecionamento)
+        {% if auto_print %}
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500); // Pequeno delay para garantir que o QR Code carregou
+        }
+        {% endif %}
+    </script>
+</body>
+</html>
