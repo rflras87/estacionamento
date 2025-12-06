@@ -5,9 +5,7 @@
 {% block content %}
 <style>
     /* CORREÇÃO DE LAYOUT */
-    #cpf_cnpj {
-        min-width: 100px; 
-    }
+    #cpf_cnpj { min-width: 100px; }
     
     /* ESTILO DOS CARDS DE VEÍCULOS */
     .veiculo-card {
@@ -16,62 +14,93 @@
         border-radius: 0.5rem;
         padding: 15px;
         margin-bottom: 15px;
-        position: relative; /* Para posicionar o botão de excluir */
+        position: relative;
         transition: all 0.3s ease;
     }
     .veiculo-card:hover {
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-color: #ced4da;
     }
     .btn-remove-veiculo {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 10px; right: 10px;
         z-index: 10;
+    }
+    
+    /* Ícones nos labels */
+    .form-label i {
+        color: #6c757d;
+        margin-right: 4px;
     }
 </style>
 
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h3 class="mb-0">
+    <div class="col-md-9">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white py-3">
+                <h3 class="mb-0 fs-4 fw-bold">
                     <i class="bi bi-person-{{ 'gear' if cliente else 'plus-fill' }} me-2"></i> 
-                    {{ 'Editar Cadastro' if cliente else 'Cadastro de Cliente' }}
+                    {{ 'Editar Cadastro' if cliente else 'Novo Cliente' }}
                 </h3>
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('editar_cliente', id=cliente.id) if cliente and cliente.id is defined else url_for('novo_cliente') }}">
+            <div class="card-body p-4">
+                
+                <form method="POST" action="{{ url_for('editar_cliente', id=cliente.id) if cliente and cliente.id else url_for('novo_cliente') }}">
                     
-                    <h5 class="text-primary border-bottom pb-2 mb-3">
-                        <i class="bi bi-person me-1"></i> Dados Pessoais
+                    <h5 class="text-primary border-bottom pb-2 mb-4">
+                        <i class="bi bi-person-vcard-fill me-2"></i> Dados de Contato
                     </h5>
                     
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="nome" class="form-label fw-bold">Nome Completo</label>
-                            <input type="text" class="form-control" id="nome" name="nome" value="{{ cliente.nome if cliente else '' }}" placeholder="Ex: Rafael Alves" required autofocus>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nome" class="form-label fw-bold">
+                                <i class="bi bi-person-fill"></i> Nome Completo <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="nome" name="nome" value="{{ cliente.nome if cliente else '' }}" placeholder="Ex: Rafael Alves" required autofocus>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="telefone" class="form-label fw-bold">Telefone</label>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label fw-bold">
+                                <i class="bi bi-envelope-at-fill"></i> E-mail
+                            </label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email" 
+                                value="{{ cliente.email if cliente and cliente.email else '' }}" 
+                                placeholder="contato@cliente.com">
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="telefone" class="form-label fw-bold">
+                                <i class="bi bi-telephone-fill"></i> Telefone Principal
+                            </label>
                             <input type="text" class="form-control" id="telefone" name="telefone" value="{{ cliente.telefone if cliente else '' }}" placeholder="(11) 99999-9999" oninput="mascaraTelefone(this)">
                             
-                            <div id="whatsappDiv" class="form-check mt-1" style="{{ 'display:block' if cliente and cliente.telefone|length > 14 else 'display:none' }}">
+                            <div id="whatsappDiv" class="form-check mt-1 ms-1" style="{{ 'display:block' if cliente and cliente.telefone|length > 14 else 'display:none' }}">
                                 <input class="form-check-input" type="checkbox" id="is_whatsapp" name="is_whatsapp" {% if cliente and cliente.is_whatsapp %}checked{% endif %}>
                                 <label class="form-check-label text-success fw-bold small" for="is_whatsapp">
                                     <i class="bi bi-whatsapp me-1"></i> É WhatsApp?
                                 </label>
                             </div>
                         </div>
+                        
+                        <div class="col-md-6">
+                            <label for="telefone2" class="form-label fw-bold text-muted">
+                                <i class="bi bi-telephone"></i> Telefone Secundário
+                            </label>
+                            <input type="text" class="form-control bg-light" id="telefone2" name="telefone2" 
+                                   value="{{ cliente.telefone2 if cliente and cliente.telefone2 is defined else '' }}" 
+                                   placeholder="(11) 99999-9999" oninput="mascaraTelefone(this)">
+                        </div>
                     </div>
 
-                    <h5 class="mt-3 text-secondary border-bottom pb-2">
-                        <i class="bi bi-file-earmark-person me-1"></i> Documentação e Contato
+                    <h5 class="mt-4 text-secondary border-bottom pb-2 mb-3">
+                        <i class="bi bi-file-earmark-text-fill me-2"></i> Documentação
                     </h5>
                     <div class="row mb-3">
-                        
-                        <div class="col-md-6 mb-3">
-                            <label for="cpf_cnpj" class="form-label fw-bold">Número do Documento</label>
-                            
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-card-heading"></i> Tipo de Documento
+                            </label>
                             <div class="d-flex gap-3 mb-2" id="docTypeSelector">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="doc_type" id="type_cpf" value="cpf" 
@@ -89,116 +118,132 @@
                             
                             <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj" 
                                 value="{{ cliente.cpf_cnpj if cliente and cliente.cpf_cnpj else '' }}" 
-                                placeholder="Opcional"
+                                placeholder="Digite apenas números"
                                 oninput="mascaraDocumento(this)"
                                 onblur="validarDoc(this)">
-                            <div id="docFeedback" class="mt-1 small"></div>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label fw-bold">E-mail</label>
-                            <input type="email" class="form-control" id="email" name="email" 
-                                value="{{ cliente.email if cliente and cliente.email else '' }}" 
-                                placeholder="contato@cliente.com">
+                            <div id="docFeedback" class="mt-1 small fw-bold"></div>
                         </div>
                     </div>
 
-                    <h5 class="mt-3 text-secondary border-bottom pb-2">
-                        <i class="bi bi-geo-alt-fill me-1"></i> Endereço Completo
+                    <h5 class="mt-4 text-secondary border-bottom pb-2 mb-3">
+                        <i class="bi bi-geo-alt-fill me-2"></i> Endereço
                     </h5>
                     <div class="row">
-                        <div class="col-md-2 mb-3">
-                            <label for="cep" class="form-label fw-bold">CEP</label>
-                            <input type="text" class="form-control" id="cep" name="cep" 
-                                value="{{ cliente.cep if cliente and cliente.cep else '' }}" onblur="consultaCEP()">
+                        <div class="col-md-3 mb-3">
+                            <label for="cep" class="form-label fw-bold">
+                                <i class="bi bi-mailbox2"></i> CEP
+                            </label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="cep" name="cep" 
+                                    value="{{ cliente.cep if cliente and cliente.cep else '' }}" onblur="consultaCEP()" placeholder="00000-000">
+                                <button class="btn btn-outline-secondary" type="button" onclick="consultaCEP()"><i class="bi bi-search"></i></button>
+                            </div>
                         </div>
-                        <div class="col-md-5 mb-3">
-                            <label for="logradouro" class="form-label fw-bold">Logradouro (Rua/Av.)</label>
-                            <input type="text" class="form-control" id="logradouro" name="logradouro" 
-                                value="{{ cliente.logradouro if cliente and cliente.logradouro else '' }}">
+                        <div class="col-md-7 mb-3">
+                            <label for="logradouro" class="form-label fw-bold">
+                                <i class="bi bi-signpost-fill"></i> Logradouro
+                            </label>
+                            <input type="text" class="form-control bg-light" id="logradouro" name="logradouro" 
+                                value="{{ cliente.logradouro if cliente and cliente.logradouro else '' }}" readonly>
                         </div>
                         <div class="col-md-2 mb-3">
-                            <label for="numero" class="form-label fw-bold">Número</label>
+                            <label for="numero" class="form-label fw-bold">
+                                <i class="bi bi-123"></i> Nº
+                            </label>
                             <input type="text" class="form-control" id="numero" name="numero" 
                                 value="{{ cliente.numero if cliente and cliente.numero else '' }}">
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="complemento" class="form-label fw-bold">Complemento</label>
-                            <input type="text" class="form-control" id="complemento" name="complemento" 
-                                value="{{ cliente.complemento if cliente and cliente.complemento else '' }}" placeholder="Ex: Apto 101">
-                        </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="bairro" class="form-label fw-bold">Bairro</label>
-                            <input type="text" class="form-control" id="bairro" name="bairro" 
-                                value="{{ cliente.bairro if cliente and cliente.bairro else '' }}">
+                        <div class="col-md-5">
+                            <label for="bairro" class="form-label fw-bold">
+                                <i class="bi bi-map-fill"></i> Bairro
+                            </label>
+                            <input type="text" class="form-control bg-light" id="bairro" name="bairro" 
+                                value="{{ cliente.bairro if cliente and cliente.bairro else '' }}" readonly>
                         </div>
-                        <div class="col-md-4">
-                            <label for="cidade" class="form-label fw-bold">Cidade</label>
-                            <input type="text" class="form-control" id="cidade" name="cidade" 
-                                value="{{ cliente.cidade if cliente and cliente.cidade else '' }}">
+                        <div class="col-md-5">
+                            <label for="cidade" class="form-label fw-bold">
+                                <i class="bi bi-buildings-fill"></i> Cidade
+                            </label>
+                            <input type="text" class="form-control bg-light" id="cidade" name="cidade" 
+                                value="{{ cliente.cidade if cliente and cliente.cidade else '' }}" readonly>
                         </div>
                         <div class="col-md-2">
-                            <label for="estado" class="form-label fw-bold">Estado</label>
-                            <input type="text" class="form-control" id="estado" name="estado" maxlength="2"
-                                value="{{ cliente.estado if cliente and cliente.estado else '' }}">
+                            <label for="estado" class="form-label fw-bold">
+                                <i class="bi bi-flag-fill"></i> UF
+                            </label>
+                            <input type="text" class="form-control bg-light" id="estado" name="estado" maxlength="2"
+                                value="{{ cliente.estado if cliente and cliente.estado else '' }}" readonly>
                         </div>
                     </div>
+                    <div class="mb-3">
+                         <label for="complemento" class="form-label fw-bold">
+                            <i class="bi bi-building"></i> Complemento
+                         </label>
+                         <input type="text" class="form-control" id="complemento" name="complemento" 
+                                value="{{ cliente.complemento if cliente and cliente.complemento else '' }}" placeholder="Ex: Apto 101, Bloco B">
+                    </div>
 
-                    <div class="d-flex justify-content-between align-items-center mt-4 border-bottom pb-2 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mt-5 border-bottom pb-2 mb-3">
                         <h5 class="text-secondary mb-0">
-                            <i class="bi bi-car-front-fill me-1"></i> Veículos
+                            <i class="bi bi-car-front-fill me-2"></i> Veículos
                         </h5>
-                        <button type="button" class="btn btn-sm btn-success" onclick="adicionarVeiculo()">
-                            <i class="bi bi-plus-circle me-1"></i> Adicionar Veículo
+                        <button type="button" class="btn btn-sm btn-success fw-bold shadow-sm" onclick="adicionarVeiculo()">
+                            <i class="bi bi-plus-circle me-1"></i> Adicionar
                         </button>
                     </div>
                     
                     <div id="container-veiculos">
-                        <div class="veiculo-card" id="veiculo-0">
-                            <h6 class="text-primary fw-bold mb-3">Veículo Principal</h6>
+                        <div class="veiculo-card shadow-sm" id="veiculo-0">
+                            <h6 class="text-primary fw-bold mb-3"><i class="bi bi-star-fill me-1"></i> Veículo Principal</h6>
                             <div class="row mb-3">
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold"><i class="bi bi-card-heading me-1"></i> Placa</label>
-                                    <input type="text" class="form-control text-uppercase bg-light" name="placa[]" value="{{ cliente.placa if cliente else '' }}" placeholder="AAA1234" maxlength="7" required>
+                                    <label class="form-label fw-bold">
+                                        <i class="bi bi-postcard-fill"></i> Placa <span class="text-danger">*</span>
+                                    </label>
+                                    
+                                    <input type="text" class="form-control text-uppercase fw-bold {{ 'bg-secondary text-white' if cliente else 'bg-warning-subtle' }}" 
+                                           name="placa" 
+                                           value="{{ cliente.placa if cliente else '' }}" 
+                                           placeholder="ABC1D23" 
+                                           maxlength="7" 
+                                           required 
+                                           {{ 'readonly' if cliente else '' }}>
+                                    {% if cliente %}<div class="form-text text-muted small">Placa não pode ser alterada.</div>{% endif %}
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold"><i class="bi bi-tag-fill me-1"></i> Marca</label>
-                                    <input type="text" class="form-control" name="marca_veiculo[]" value="{{ cliente.marca_veiculo if cliente else '' }}" placeholder="Ex: VW">
+                                    <label class="form-label fw-bold"><i class="bi bi-tag-fill"></i> Marca</label>
+                                    <input type="text" class="form-control" name="marca_veiculo" value="{{ cliente.marca_veiculo if cliente else '' }}" placeholder="Ex: Chevrolet">
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold"><i class="bi bi-car-front me-1"></i> Modelo</label>
-                                    <input type="text" class="form-control" name="modelo_veiculo[]" value="{{ cliente.modelo_veiculo if cliente else '' }}" placeholder="Ex: Fox">
+                                    <label class="form-label fw-bold"><i class="bi bi-car-front"></i> Modelo</label>
+                                    <input type="text" class="form-control" name="modelo_veiculo" value="{{ cliente.modelo_veiculo if cliente else '' }}" placeholder="Ex: Onix">
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold"><i class="bi bi-palette me-1"></i> Cor</label>
-                                    <input type="text" class="form-control" name="cor_veiculo[]" value="{{ cliente.cor_veiculo if cliente else '' }}" placeholder="Ex: Cinza">
+                                    <label class="form-label fw-bold"><i class="bi bi-palette-fill"></i> Cor</label>
+                                    <input type="text" class="form-control" name="cor_veiculo" value="{{ cliente.cor_veiculo if cliente else '' }}" placeholder="Ex: Prata">
                                 </div>
                             </div>
 
-                            <div class="row">
+                            <div class="row align-items-end"> 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Tipo de Veículo</label>
-                                    <select class="form-select" name="tipo_veiculo[]">
+                                    <label class="form-label fw-bold"><i class="bi bi-list-ul"></i> Tipo</label>
+                                    <select class="form-select" name="tipo_veiculo">
                                         <option value="CARRO" {% if not cliente or cliente.tipo_veiculo == 'CARRO' %}selected{% endif %}>Carro</option>
                                         <option value="MOTO" {% if cliente and cliente.tipo_veiculo == 'MOTO' %}selected{% endif %}>Moto</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Características</label>
-                                    <div class="d-flex gap-3 mt-2">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="is_suv_0" id="is_suv" {% if cliente and cliente.is_suv %}checked{% endif %}>
-                                            <label class="form-check-label" for="is_suv">
-                                                <i class="bi bi-truck-front-fill text-secondary"></i> SUV
-                                            </label>
+                                    <label class="form-label fw-bold mb-2"><i class="bi bi-sliders"></i> Atributos</label>
+                                    <div class="d-flex gap-3 p-2 border rounded bg-white" style="height: 38px; align-items: center;"> 
+                                        <div class="form-check mb-0">
+                                            <input class="form-check-input" type="checkbox" name="is_suv" id="is_suv" {% if cliente and cliente.is_suv %}checked{% endif %}>
+                                            <label class="form-check-label" for="is_suv">SUV / Grande</label>
                                         </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="is_eletrico_0" id="is_eletrico" {% if cliente and cliente.is_eletrico %}checked{% endif %}>
-                                            <label class="form-check-label" for="is_eletrico">
-                                                <i class="bi bi-lightning-charge-fill text-warning"></i> Elétrico
-                                            </label>
+                                        <div class="form-check mb-0">
+                                            <input class="form-check-input" type="checkbox" name="is_eletrico" id="is_eletrico" {% if cliente and cliente.is_eletrico %}checked{% endif %}>
+                                            <label class="form-check-label" for="is_eletrico">Elétrico</label>
                                         </div>
                                     </div>
                                 </div>
@@ -206,70 +251,83 @@
                         </div>
                     </div>
                     
-                    <div class="mb-3 mt-4">
-                        <label class="form-label fw-bold"><i class="bi bi-journal-text me-1"></i> Observações</label>
-                        <textarea class="form-control" name="observacoes" rows="2" placeholder="Ex: Cliente VIP, chave na portaria...">{{ cliente.observacoes if cliente else '' }}</textarea>
+                    <div class="mb-4 mt-4">
+                        <label class="form-label fw-bold text-muted">
+                            <i class="bi bi-chat-text-fill"></i> Observações Internas
+                        </label>
+                        <textarea class="form-control" name="observacoes" rows="2">{{ cliente.observacoes if cliente else '' }}</textarea>
                     </div>
                     
-                    <h5 class="mt-4 text-secondary border-bottom pb-2">
-                        <i class="bi bi-wallet2 me-1"></i> Plano e Pagamento
+                    <h5 class="mt-4 text-secondary border-bottom pb-2 mb-3">
+                        <i class="bi bi-credit-card-2-front-fill me-2"></i> Plano e Pagamento
                     </h5>
                     
-                    <div class="mb-3 mt-3">
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="tipo_cliente" id="tipoAvulso" value="AVULSO" {% if not cliente or cliente.tipo_cliente == 'AVULSO' %}checked{% endif %}>
-                            <label class="form-check-label fw-bold" for="tipoAvulso">
-                                <i class="bi bi-hourglass-split me-1"></i> Avulso (Paga por uso)
-                            </label>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card h-100 border-primary mb-3" id="cardMensalista">
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tipo_cliente" id="tipoMensalista" value="MENSALISTA" {% if cliente and cliente.tipo_cliente == 'MENSALISTA' %}checked{% endif %}>
+                                        <label class="form-check-label fw-bold fs-5 text-primary" for="tipoMensalista">
+                                            Mensalista
+                                        </label>
+                                        <p class="text-muted small mb-0">Paga valor fixo mensal.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="tipo_cliente" id="tipoMensalista" value="MENSALISTA" {% if cliente and cliente.tipo_cliente == 'MENSALISTA' %}checked{% endif %}>
-                            <label class="form-check-label fw-bold" for="tipoMensalista">
-                                <i class="bi bi-calendar-check-fill text-primary"></i> Mensalista
-                            </label>
+                        <div class="col-md-6">
+                             <div class="card h-100 border-success mb-3" id="cardAvulso">
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tipo_cliente" id="tipoAvulso" value="AVULSO" {% if not cliente or cliente.tipo_cliente == 'AVULSO' %}checked{% endif %}>
+                                        <label class="form-check-label fw-bold fs-5" for="tipoAvulso">
+                                            Cliente Avulso
+                                        </label>
+                                        <p class="text-muted small mb-0">Paga por tempo de uso (hora/minuto).</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div id="regraCicloDiv" class="alert alert-secondary mt-3 border" style="display: none; background-color: #e9ecef;">
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-dark">
-                                <i class="bi bi-list-stars me-1"></i> Selecione o Plano:
-                            </label>
-                            <select class="form-select" name="plano_mensal">
-                                <option value="INTEGRAL" {% if cliente and cliente.plano_mensal == 'INTEGRAL' %}selected{% endif %}>Integral (24h)</option>
-                                <option value="DIURNO" {% if cliente and cliente.plano_mensal == 'DIURNO' %}selected{% endif %}>Diurno</option>
-                                <option value="NOTURNO" {% if cliente and cliente.plano_mensal == 'NOTURNO' %}selected{% endif %}>Noturno</option>
-                            </select>
+                    <div id="regraCicloDiv" class="card bg-light border-primary mt-3" style="display: none;">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold text-primary">Plano Contratado</label>
+                                    <select class="form-select border-primary" name="plano_mensal">
+                                        <option value="INTEGRAL" {% if cliente and cliente.plano_mensal == 'INTEGRAL' %}selected{% endif %}>Integral (24h)</option>
+                                        <option value="DIURNO" {% if cliente and cliente.plano_mensal == 'DIURNO' %}selected{% endif %}>Diurno</option>
+                                        <option value="NOTURNO" {% if cliente and cliente.plano_mensal == 'NOTURNO' %}selected{% endif %}>Noturno</option>
+                                    </select>
+                                </div>
+                                {% if not cliente %}
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold text-primary">Início da Cobrança</label>
+                                    <div class="d-flex flex-column gap-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="regra_inicio" id="regraImediato" value="IMEDIATO" checked>
+                                            <label class="form-check-label" for="regraImediato">Imediato (Hoje)</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="regra_inicio" id="regraPrimeiroUso" value="PRIMEIRO_USO">
+                                            <label class="form-check-label" for="regraPrimeiroUso">No Primeiro Uso</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
-                        
-                        {% if not cliente %}
-                        <hr class="border-secondary">
-                        <h6 class="mb-3 text-primary fw-bold">
-                            <i class="bi bi-calendar-event me-2"></i>Início da Cobrança
-                        </h6>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="regra_inicio" id="regraImediato" value="IMEDIATO" checked>
-                            <label class="form-check-label text-dark" for="regraImediato">
-                                <strong>Início Imediato</strong> - Começa HOJE.
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="regra_inicio" id="regraPrimeiroUso" value="PRIMEIRO_USO">
-                            <label class="form-check-label text-dark" for="regraPrimeiroUso">
-                                <strong>No Primeiro Uso</strong> - Começa na 1ª entrada.
-                            </label>
-                        </div>
-                        {% endif %}
                     </div>
                     
-                    <div class="d-grid mt-4 gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-save-fill me-2"></i> {{ 'Salvar Alterações' if cliente else 'Salvar Cliente' }}
-                        </button>
-                        <a href="{{ url_for('listar_clientes') }}" class="btn btn-secondary btn-lg">
-                            <i class="bi bi-x-circle me-2"></i> Cancelar
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5 pt-3 border-top">
+                        <a href="{{ url_for('listar_clientes') }}" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-arrow-left me-1"></i> Cancelar
                         </a>
+                        <button type="submit" class="btn btn-primary px-5 fw-bold shadow">
+                            <i class="bi bi-check-lg me-2"></i> {{ 'Salvar Alterações' if cliente else 'Cadastrar Cliente' }}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -279,79 +337,47 @@
 
 <script>
     // === LÓGICA DE MÚLTIPLOS VEÍCULOS ===
-    let contadorVeiculos = 0; // Começa em 0 (Veículo Principal)
+    let contadorVeiculos = 0;
 
     function adicionarVeiculo() {
         contadorVeiculos++;
         const container = document.getElementById('container-veiculos');
         
-        // Template do novo veículo (Similar ao principal, mas com botão de remover)
-        // Note que name="placa[]" mantém o array, e checkbox ganha índice único
         const htmlVeiculo = `
-        <div class="veiculo-card" id="veiculo-${contadorVeiculos}">
-            <button type="button" class="btn btn-sm btn-danger btn-remove-veiculo" onclick="removerVeiculo(${contadorVeiculos})" title="Remover este veículo">
-                <i class="bi bi-trash-fill"></i>
+        <div class="veiculo-card shadow-sm position-relative mt-3" id="veiculo-${contadorVeiculos}" style="border-left: 4px solid #198754;">
+            <button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2" onclick="removerVeiculo(${contadorVeiculos})" title="Remover">
+                <i class="bi bi-trash"></i>
             </button>
-            <h6 class="text-secondary fw-bold mb-3">Veículo Adicional #${contadorVeiculos}</h6>
+            <h6 class="text-success fw-bold mb-3 ms-2">Veículo Adicional #${contadorVeiculos}</h6>
             
             <div class="row mb-3">
                 <div class="col-md-3">
-                    <label class="form-label fw-bold">Placa</label>
-                    <input type="text" class="form-control text-uppercase bg-light" name="placa[]" placeholder="AAA1234" maxlength="7" required>
+                    <label class="form-label fw-bold"><i class="bi bi-postcard-fill me-1"></i> Placa</label>
+                    <input type="text" class="form-control text-uppercase bg-white" name="placa_extra_${contadorVeiculos}" placeholder="AAA1234" maxlength="7">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label fw-bold">Marca</label>
-                    <input type="text" class="form-control" name="marca_veiculo[]" placeholder="Ex: GM">
+                    <label class="form-label fw-bold"><i class="bi bi-tag-fill me-1"></i> Marca</label>
+                    <input type="text" class="form-control" name="marca_extra_${contadorVeiculos}" placeholder="Marca">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label fw-bold">Modelo</label>
-                    <input type="text" class="form-control" name="modelo_veiculo[]" placeholder="Ex: Onix">
+                    <label class="form-label fw-bold"><i class="bi bi-car-front me-1"></i> Modelo</label>
+                    <input type="text" class="form-control" name="modelo_extra_${contadorVeiculos}" placeholder="Modelo">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label fw-bold">Cor</label>
-                    <input type="text" class="form-control" name="cor_veiculo[]" placeholder="Ex: Branco">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Tipo</label>
-                    <select class="form-select" name="tipo_veiculo[]">
-                        <option value="CARRO" selected>Carro</option>
-                        <option value="MOTO">Moto</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Características</label>
-                    <div class="d-flex gap-3 mt-2">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="is_suv_${contadorVeiculos}" value="1">
-                            <label class="form-check-label">SUV</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="is_eletrico_${contadorVeiculos}" value="1">
-                            <label class="form-check-label">Elétrico</label>
-                        </div>
-                    </div>
+                    <label class="form-label fw-bold"><i class="bi bi-palette-fill me-1"></i> Cor</label>
+                    <input type="text" class="form-control" name="cor_extra_${contadorVeiculos}" placeholder="Cor">
                 </div>
             </div>
         </div>
         `;
-        
         container.insertAdjacentHTML('beforeend', htmlVeiculo);
     }
 
     function removerVeiculo(id) {
-        const elemento = document.getElementById(`veiculo-${id}`);
-        if (elemento) {
-            elemento.remove();
-        }
+        document.getElementById(`veiculo-${id}`).remove();
     }
 
-    // =========================================================================
-    // MÁSCARAS E VALIDAÇÕES (CÓDIGO ORIGINAL MANTIDO E RESTAURADO)
-    // =========================================================================
-
-    // MÁSCARA DE TELEFONE
+    // MÁSCARAS E VALIDAÇÕES
     function mascaraTelefone(input) {
         let v = input.value.replace(/\D/g, "");
         const whatsappDiv = document.getElementById('whatsappDiv');
@@ -370,198 +396,70 @@
         input.value = v.substring(0, 15);
     }
     
-    // VALIDAÇÃO E MÁSCARA DE DOCUMENTO
-    function validaCPF(cpf) {
-        cpf = cpf.replace(/[^\d]+/g, '');
-        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-        let soma = 0, resto;
-        for (let i = 1; i <= 9; i++) soma = soma + parseInt(cpf.substring(i - 1, i)) * (11 - i);
-        resto = (soma * 10) % 11;
-        if ((resto === 10) || (resto === 11)) resto = 0;
-        if (resto !== parseInt(cpf.substring(9, 10))) return false;
-        soma = 0;
-        for (let i = 1; i <= 10; i++) soma = soma + parseInt(cpf.substring(i - 1, i)) * (12 - i);
-        resto = (soma * 10) % 11;
-        if ((resto === 10) || (resto === 11)) resto = 0;
-        return resto === parseInt(cpf.substring(10, 11));
-    }
-
-    function validaCNPJ(cnpj) {
-        cnpj = cnpj.replace(/[^\d]+/g, '');
-        if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
-        let tamanho = cnpj.length - 2;
-        let numeros = cnpj.substring(0, tamanho);
-        let digitos = cnpj.substring(tamanho);
-        let soma = 0;
-        let pos = tamanho - 7;
-        for (let i = tamanho; i >= 1; i--) {
-            soma += numeros.charAt(tamanho - i) * pos--;
-            if (pos < 2) pos = 9;
-        }
-        let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
-        if (resultado !== parseInt(digitos.charAt(0))) return false;
-        tamanho = tamanho + 1;
-        numeros = cnpj.substring(0, tamanho);
-        soma = 0;
-        pos = tamanho - 7;
-        for (let i = tamanho; i >= 1; i--) {
-            soma += numeros.charAt(tamanho - i) * pos--;
-            if (pos < 2) pos = 9;
-        }
-        resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
-        return resultado === parseInt(digitos.charAt(1));
-    }
-
+    // DOCS
     function mascaraDocumento(input) {
         let v = input.value.replace(/\D/g, "");
         const docType = document.querySelector('input[name="doc_type"]:checked').value;
 
-        if (docType === 'cnpj') { // CNPJ
+        if (docType === 'cnpj') {
             if (v.length > 14) v = v.substring(0, 14); 
-            if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "$1.$2");
-            if (v.length > 5) v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-            if (v.length > 8) v = v.replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3/$4");
-            if (v.length > 12) v = v.replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, "$1.$2.$3/$4-$5");
-            input.value = v; 
-        } else { // CPF
+            v = v.replace(/^(\d{2})(\d)/, "$1.$2").replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3").replace(/\.(\d{3})(\d)/, ".$1/$2").replace(/(\d{4})(\d)/, "$1-$2");
+        } else {
             if (v.length > 11) v = v.substring(0, 11); 
-            v = v.replace(/^(\d{3})(\d)/, "$1.$2");
-            v = v.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-            v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-            input.value = v; 
+            v = v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
         }
-        validarDoc(input);
+        input.value = v;
     }
 
     function validarDoc(input) {
-        const docFeedback = document.getElementById('docFeedback');
-        const doc = input.value.replace(/\D/g, "");
-        const docType = document.querySelector('input[name="doc_type"]:checked').value;
-
-
-        input.classList.remove('is-valid', 'is-invalid');
-        docFeedback.innerHTML = '';
-        
-        if (doc.length === 0) {
-            return;
-        }
-
-        let valido = false;
-        let tipo = '';
-
-        if (docType === 'cpf' && doc.length === 11) {
-            valido = validaCPF(doc);
-            tipo = 'CPF';
-        } else if (docType === 'cnpj' && doc.length === 14) {
-            valido = validaCNPJ(doc);
-            tipo = 'CNPJ';
+        const feedback = document.getElementById('docFeedback');
+        const v = input.value.replace(/\D/g, "");
+        if(v.length > 0 && (v.length === 11 || v.length === 14)) {
+            input.classList.add('is-valid'); input.classList.remove('is-invalid');
+            feedback.innerHTML = '<span class="text-success"><i class="bi bi-check"></i> Formato OK</span>';
+        } else if(v.length > 0) {
+            input.classList.add('is-invalid'); input.classList.remove('is-valid');
+            feedback.innerHTML = '<span class="text-danger">Dígitos incorretos.</span>';
         } else {
-            docFeedback.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger"></i> Inválido (Deve ter ${docType.toUpperCase()} 11 ou 14 dígitos).`;
-            input.classList.add('is-invalid');
-            return;
-        }
-
-        if (valido) {
-            docFeedback.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> ${tipo} válido.`;
-            input.classList.add('is-valid');
-            input.removeAttribute('data-invalido');
-        } else {
-            docFeedback.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger"></i> ${tipo} inválido.`;
-            input.classList.add('is-invalid');
-            input.setAttribute('data-invalido', 'true');
+            input.classList.remove('is-valid', 'is-invalid'); feedback.innerHTML = '';
         }
     }
     
     function resetDocField() {
-        const docInput = document.getElementById('cpf_cnpj');
-        docInput.value = '';
-        docInput.classList.remove('is-valid', 'is-invalid');
+        const i = document.getElementById('cpf_cnpj');
+        i.value = ''; i.classList.remove('is-valid', 'is-invalid');
         document.getElementById('docFeedback').innerHTML = '';
-        docInput.focus();
+        i.focus();
     }
     
-    // FUNÇÃO DE CONSULTA DE CEP (ViaCEP API)
+    // CEP
     function consultaCEP() {
-        const cepInput = document.getElementById('cep');
-        const cep = cepInput.value.replace(/\D/g, ""); // Remove não-dígitos
-        
+        const cep = document.getElementById('cep').value.replace(/\D/g, "");
         if (cep.length === 8) {
-            const logradouro = document.getElementById('logradouro');
-            const bairro = document.getElementById('bairro');
-            const cidade = document.getElementById('cidade');
-            const estado = document.getElementById('estado');
-            const numero = document.getElementById('numero');
-            
-            // Limpa/Sinaliza os campos enquanto consulta
-            logradouro.value = '...';
-            bairro.value = '...';
-            cidade.value = '...';
-            estado.value = '...';
-
             fetch(`https://viacep.com.br/ws/${cep}/json/`)
-                .then(response => response.json())
+                .then(r => r.json())
                 .then(data => {
-                    if (!("erro" in data)) {
-                        logradouro.value = data.logradouro;
-                        bairro.value = data.bairro;
-                        cidade.value = data.localidade;
-                        estado.value = data.uf;
-                        numero.focus();
-                    } else {
-                        logradouro.value = '';
-                        bairro.value = '';
-                        cidade.value = '';
-                        estado.value = '';
+                    if (!data.erro) {
+                        document.getElementById('logradouro').value = data.logradouro;
+                        document.getElementById('bairro').value = data.bairro;
+                        document.getElementById('cidade').value = data.localidade;
+                        document.getElementById('estado').value = data.uf;
+                        document.getElementById('numero').focus();
                     }
-                })
-                .catch(error => {
-                    console.error("Erro na consulta de CEP:", error);
-                    logradouro.value = '';
-                    bairro.value = '';
-                    cidade.value = '';
-                    estado.value = '';
                 });
         }
     }
 
-    // TOGGLE MENSALISTA E LISTENERS
+    // INICIALIZAÇÃO
     document.addEventListener('DOMContentLoaded', function() {
-        const tipoMensalista = document.getElementById('tipoMensalista');
-        const tipoAvulso = document.getElementById('tipoAvulso');
-        const regraCicloDiv = document.getElementById('regraCicloDiv');
-        const cepInput = document.getElementById('cep');
-        const cpfCnpjInput = document.getElementById('cpf_cnpj');
+        const radios = document.querySelectorAll('input[name="tipo_cliente"]');
+        const divCiclo = document.getElementById('regraCicloDiv');
         
-        cepInput.addEventListener('blur', consultaCEP);
-        
-        cpfCnpjInput.addEventListener('blur', function() {
-            validarDoc(this);
-        });
-
-        function toggleRegraCiclo() {
-            if (tipoMensalista.checked) {
-                regraCicloDiv.style.display = 'block';
-            } else {
-                regraCicloDiv.style.display = 'none';
-            }
+        function toggle() {
+            divCiclo.style.display = document.getElementById('tipoMensalista').checked ? 'block' : 'none';
         }
-
-        tipoMensalista.addEventListener('change', toggleRegraCiclo);
-        tipoAvulso.addEventListener('change', toggleRegraCiclo);
-        toggleRegraCiclo();
+        radios.forEach(r => r.addEventListener('change', toggle));
+        toggle();
     });
-    
-    // Travar submit se houver campo inválido
-    document.querySelector('form').addEventListener('submit', function(e) {
-        const docInput = document.getElementById('cpf_cnpj');
-        
-        validarDoc(docInput); 
-        
-        if (docInput.value.replace(/\D/g, "").length > 0 && docInput.classList.contains('is-invalid')) {
-            e.preventDefault();
-            alert('Corrija o CPF/CNPJ antes de salvar.');
-        }
-    });
-
 </script>
 {% endblock %}

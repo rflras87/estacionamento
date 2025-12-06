@@ -1,0 +1,268 @@
+2025-12-06 14:39:53,721 - WARNING -  * Debugger is active!
+2025-12-06 14:39:53,727 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 14:39:56,070 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-06 14:39:56,070 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-06 14:39:56,071 - INFO -  * Restarting with stat
+2025-12-06 14:39:56,216 - WARNING -  * Debugger is active!
+2025-12-06 14:39:56,221 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 14:40:09,168 - INFO - 127.0.0.1 - - [06/Dec/2025 14:40:09] "GET /home HTTP/1.1" 200 -
+2025-12-06 14:40:12,792 - INFO - 127.0.0.1 - - [06/Dec/2025 14:40:12] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 14:40:14,085 - INFO - 127.0.0.1 - - [06/Dec/2025 14:40:14] "GET /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:40:28,470 - INFO - 127.0.0.1 - - [06/Dec/2025 14:40:28] "POST /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:46:03,541 - INFO -  * Detected change in '/Users/ras/projeto_limpo/app.py', reloading
+2025-12-06 14:46:03,606 - INFO -  * Restarting with stat
+2025-12-06 14:46:03,898 - WARNING -  * Debugger is active!
+2025-12-06 14:46:03,904 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 14:46:07,271 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-06 14:46:07,271 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-06 14:46:07,272 - INFO -  * Restarting with stat
+2025-12-06 14:46:07,420 - WARNING -  * Debugger is active!
+2025-12-06 14:46:07,424 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 14:46:14,244 - INFO - 127.0.0.1 - - [06/Dec/2025 14:46:14] "GET /home HTTP/1.1" 200 -
+2025-12-06 14:46:16,511 - INFO - 127.0.0.1 - - [06/Dec/2025 14:46:16] "[32mGET /logout HTTP/1.1[0m" 302 -
+2025-12-06 14:46:16,519 - INFO - 127.0.0.1 - - [06/Dec/2025 14:46:16] "GET /login HTTP/1.1" 200 -
+2025-12-06 14:46:20,920 - INFO - 127.0.0.1 - - [06/Dec/2025 14:46:20] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-12-06 14:46:21,025 - INFO - 127.0.0.1 - - [06/Dec/2025 14:46:21] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-12-06 14:46:21,154 - INFO - 127.0.0.1 - - [06/Dec/2025 14:46:21] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-12-06 14:46:21,159 - INFO - 127.0.0.1 - - [06/Dec/2025 14:46:21] "GET /home HTTP/1.1" 200 -
+2025-12-06 14:46:25,900 - INFO - 127.0.0.1 - - [06/Dec/2025 14:46:25] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 14:46:26,809 - INFO - 127.0.0.1 - - [06/Dec/2025 14:46:26] "GET /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:46:39,862 - ERROR - Erro novo cliente: 'NoneType' object has no attribute 'upper'
+2025-12-06 14:46:39,865 - INFO - 127.0.0.1 - - [06/Dec/2025 14:46:39] "POST /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:52:03,419 - INFO -  * Detected change in '/Users/ras/projeto_limpo/app.py', reloading
+2025-12-06 14:52:03,466 - INFO -  * Restarting with stat
+2025-12-06 14:52:03,694 - WARNING -  * Debugger is active!
+2025-12-06 14:52:03,701 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 14:52:06,783 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-06 14:52:06,783 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-06 14:52:06,784 - INFO -  * Restarting with stat
+2025-12-06 14:52:06,934 - WARNING -  * Debugger is active!
+2025-12-06 14:52:06,938 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 14:52:24,552 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:24] "[32mGET /logout HTTP/1.1[0m" 302 -
+2025-12-06 14:52:24,601 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:24] "GET /login HTTP/1.1" 200 -
+2025-12-06 14:52:29,379 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:29] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-12-06 14:52:29,476 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:29] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-12-06 14:52:29,481 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:29] "GET /home HTTP/1.1" 200 -
+2025-12-06 14:52:33,075 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:33] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 14:52:34,246 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:34] "GET /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:52:46,187 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:46] "[32mPOST /clientes/novo HTTP/1.1[0m" 302 -
+2025-12-06 14:52:46,195 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:46] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 14:52:58,584 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:58] "[32mGET /logout HTTP/1.1[0m" 302 -
+2025-12-06 14:52:58,601 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:58] "GET /login HTTP/1.1" 200 -
+2025-12-06 14:52:58,753 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:58] "[33mGET /apple-touch-icon-precomposed.png HTTP/1.1[0m" 404 -
+2025-12-06 14:52:58,758 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:58] "[33mGET /apple-touch-icon.png HTTP/1.1[0m" 404 -
+2025-12-06 14:52:58,764 - INFO - 127.0.0.1 - - [06/Dec/2025 14:52:58] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-12-06 14:53:01,476 - INFO - 127.0.0.1 - - [06/Dec/2025 14:53:01] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-12-06 14:53:01,488 - INFO - 127.0.0.1 - - [06/Dec/2025 14:53:01] "GET /home HTTP/1.1" 200 -
+2025-12-06 14:53:01,523 - INFO - 127.0.0.1 - - [06/Dec/2025 14:53:01] "[33mGET /apple-touch-icon-precomposed.png HTTP/1.1[0m" 404 -
+2025-12-06 14:53:01,524 - INFO - 127.0.0.1 - - [06/Dec/2025 14:53:01] "[33mGET /apple-touch-icon.png HTTP/1.1[0m" 404 -
+2025-12-06 14:53:01,524 - INFO - 127.0.0.1 - - [06/Dec/2025 14:53:01] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-12-06 14:53:06,512 - INFO - 127.0.0.1 - - [06/Dec/2025 14:53:06] "GET /relatorios HTTP/1.1" 200 -
+2025-12-06 14:53:11,275 - INFO - 127.0.0.1 - - [06/Dec/2025 14:53:11] "GET /financeiro HTTP/1.1" 200 -
+2025-12-06 14:53:16,850 - INFO - 127.0.0.1 - - [06/Dec/2025 14:53:16] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 14:53:19,113 - INFO - 127.0.0.1 - - [06/Dec/2025 14:53:19] "GET /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:53:39,630 - ERROR - Erro novo cliente: UNIQUE constraint failed: CLIENTES.placa
+2025-12-06 14:53:39,632 - INFO - 127.0.0.1 - - [06/Dec/2025 14:53:39] "POST /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:53:56,542 - INFO - 127.0.0.1 - - [06/Dec/2025 14:53:56] "GET /configuracoes HTTP/1.1" 200 -
+2025-12-06 14:54:01,082 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:01] "GET /usuarios HTTP/1.1" 200 -
+2025-12-06 14:54:11,987 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:11] "[32mPOST /usuarios/editar HTTP/1.1[0m" 302 -
+2025-12-06 14:54:11,995 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:11] "GET /usuarios HTTP/1.1" 200 -
+2025-12-06 14:54:18,773 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:18] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 14:54:20,995 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:20] "[32mGET /logout HTTP/1.1[0m" 302 -
+2025-12-06 14:54:21,001 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:21] "GET /login HTTP/1.1" 200 -
+2025-12-06 14:54:24,459 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:24] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-12-06 14:54:24,576 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:24] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-12-06 14:54:24,587 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:24] "GET /home HTTP/1.1" 200 -
+2025-12-06 14:54:27,567 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:27] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 14:54:28,844 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:28] "GET /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:54:48,089 - ERROR - Erro novo cliente: UNIQUE constraint failed: CLIENTES.placa
+2025-12-06 14:54:48,093 - INFO - 127.0.0.1 - - [06/Dec/2025 14:54:48] "POST /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:56:03,753 - INFO - 127.0.0.1 - - [06/Dec/2025 14:56:03] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 14:56:04,842 - INFO - 127.0.0.1 - - [06/Dec/2025 14:56:04] "GET /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:56:15,716 - ERROR - Erro novo cliente: UNIQUE constraint failed: CLIENTES.placa
+2025-12-06 14:56:15,720 - INFO - 127.0.0.1 - - [06/Dec/2025 14:56:15] "POST /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:56:31,967 - ERROR - Erro novo cliente: UNIQUE constraint failed: CLIENTES.placa
+2025-12-06 14:56:31,971 - INFO - 127.0.0.1 - - [06/Dec/2025 14:56:31] "POST /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:57:09,238 - ERROR - Erro novo cliente: UNIQUE constraint failed: CLIENTES.placa
+2025-12-06 14:57:09,241 - INFO - 127.0.0.1 - - [06/Dec/2025 14:57:09] "POST /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:59:37,674 - INFO - 127.0.0.1 - - [06/Dec/2025 14:59:37] "GET /home HTTP/1.1" 200 -
+2025-12-06 14:59:40,700 - INFO - 127.0.0.1 - - [06/Dec/2025 14:59:40] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 14:59:41,606 - INFO - 127.0.0.1 - - [06/Dec/2025 14:59:41] "GET /clientes/novo HTTP/1.1" 200 -
+2025-12-06 14:59:57,631 - ERROR - Erro novo cliente: UNIQUE constraint failed: CLIENTES.placa
+2025-12-06 14:59:57,677 - INFO - 127.0.0.1 - - [06/Dec/2025 14:59:57] "[35m[1mPOST /clientes/novo HTTP/1.1[0m" 500 -
+2025-12-06 14:59:57,705 - INFO - 127.0.0.1 - - [06/Dec/2025 14:59:57] "[36mGET /clientes/novo?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-12-06 14:59:57,705 - INFO - 127.0.0.1 - - [06/Dec/2025 14:59:57] "[36mGET /clientes/novo?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-12-06 14:59:57,713 - INFO - 127.0.0.1 - - [06/Dec/2025 14:59:57] "GET /clientes/novo?__debugger__=yes&cmd=resource&f=console.png&s=DOciNKglkKJCZHAoVlvo HTTP/1.1" 200 -
+2025-12-06 14:59:57,745 - INFO - 127.0.0.1 - - [06/Dec/2025 14:59:57] "[36mGET /clientes/novo?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-12-06 15:01:48,437 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-06 15:01:48,438 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-06 15:01:48,438 - INFO -  * Restarting with stat
+2025-12-06 15:01:48,582 - WARNING -  * Debugger is active!
+2025-12-06 15:01:48,588 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 15:01:55,586 - ERROR - Erro novo cliente: UNIQUE constraint failed: CLIENTES.placa
+2025-12-06 15:01:55,651 - INFO - 127.0.0.1 - - [06/Dec/2025 15:01:55] "POST /clientes/novo HTTP/1.1" 200 -
+2025-12-06 15:04:38,445 - INFO - 127.0.0.1 - - [06/Dec/2025 15:04:38] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 15:04:39,365 - INFO - 127.0.0.1 - - [06/Dec/2025 15:04:39] "GET /clientes/novo HTTP/1.1" 200 -
+2025-12-06 15:04:56,187 - ERROR - Erro novo cliente: UNIQUE constraint failed: CLIENTES.placa
+2025-12-06 15:04:56,191 - INFO - 127.0.0.1 - - [06/Dec/2025 15:04:56] "POST /clientes/novo HTTP/1.1" 200 -
+2025-12-06 15:10:46,740 - INFO - 127.0.0.1 - - [06/Dec/2025 15:10:46] "GET /configuracoes HTTP/1.1" 200 -
+2025-12-06 15:10:51,055 - INFO - 127.0.0.1 - - [06/Dec/2025 15:10:51] "GET /usuarios HTTP/1.1" 200 -
+2025-12-06 15:12:41,841 - INFO - 127.0.0.1 - - [06/Dec/2025 15:12:41] "GET /home HTTP/1.1" 200 -
+2025-12-06 15:13:01,729 - INFO - 127.0.0.1 - - [06/Dec/2025 15:13:01] "GET /logs HTTP/1.1" 200 -
+2025-12-06 15:13:10,372 - INFO - 127.0.0.1 - - [06/Dec/2025 15:13:10] "GET /configuracoes HTTP/1.1" 200 -
+2025-12-06 15:18:40,214 - INFO - 127.0.0.1 - - [06/Dec/2025 15:18:40] "GET /logs HTTP/1.1" 200 -
+2025-12-06 15:19:08,573 - INFO - 127.0.0.1 - - [06/Dec/2025 15:19:08] "GET /caixa/fechar HTTP/1.1" 200 -
+2025-12-06 15:19:49,077 - INFO - 127.0.0.1 - - [06/Dec/2025 15:19:49] "GET /home HTTP/1.1" 200 -
+2025-12-06 15:19:53,296 - INFO - 127.0.0.1 - - [06/Dec/2025 15:19:53] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 15:24:40,584 - INFO - 127.0.0.1 - - [06/Dec/2025 15:24:40] "GET /logs HTTP/1.1" 200 -
+2025-12-06 15:34:07,559 - INFO -  * Detected change in '/Users/ras/projeto_limpo/app.py', reloading
+2025-12-06 15:34:07,622 - INFO -  * Restarting with stat
+2025-12-06 16:16:38,606 - WARNING -  * Debugger is active!
+2025-12-06 16:16:38,614 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 16:16:41,528 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-06 16:16:41,528 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-06 16:16:41,528 - INFO -  * Restarting with stat
+2025-12-06 16:16:41,677 - WARNING -  * Debugger is active!
+2025-12-06 16:16:41,681 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 16:16:50,370 - INFO - 127.0.0.1 - - [06/Dec/2025 16:16:50] "POST /clientes/novo HTTP/1.1" 200 -
+2025-12-06 16:17:09,838 - INFO - 127.0.0.1 - - [06/Dec/2025 16:17:09] "GET /home HTTP/1.1" 200 -
+2025-12-06 16:17:12,472 - INFO - 127.0.0.1 - - [06/Dec/2025 16:17:12] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 16:17:29,282 - INFO - 127.0.0.1 - - [06/Dec/2025 16:17:29] "GET /clientes/novo HTTP/1.1" 200 -
+2025-12-06 16:18:45,872 - INFO - 127.0.0.1 - - [06/Dec/2025 16:18:45] "POST /clientes/novo HTTP/1.1" 200 -
+2025-12-06 16:19:01,576 - INFO - 127.0.0.1 - - [06/Dec/2025 16:19:01] "[32mPOST /clientes/novo HTTP/1.1[0m" 302 -
+2025-12-06 16:19:01,585 - INFO - 127.0.0.1 - - [06/Dec/2025 16:19:01] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 16:19:32,276 - INFO - 127.0.0.1 - - [06/Dec/2025 16:19:32] "GET /clientes/novo HTTP/1.1" 200 -
+2025-12-06 16:20:25,439 - INFO - 127.0.0.1 - - [06/Dec/2025 16:20:25] "[32mPOST /clientes/novo HTTP/1.1[0m" 302 -
+2025-12-06 16:20:25,448 - INFO - 127.0.0.1 - - [06/Dec/2025 16:20:25] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 16:23:49,902 - INFO - 127.0.0.1 - - [06/Dec/2025 16:23:49] "[35m[1mGET /clientes HTTP/1.1[0m" 500 -
+2025-12-06 16:23:49,933 - INFO - 127.0.0.1 - - [06/Dec/2025 16:23:49] "[36mGET /clientes?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-12-06 16:23:49,934 - INFO - 127.0.0.1 - - [06/Dec/2025 16:23:49] "[36mGET /clientes?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-12-06 16:23:49,950 - INFO - 127.0.0.1 - - [06/Dec/2025 16:23:49] "GET /clientes?__debugger__=yes&cmd=resource&f=console.png&s=kBogvsEksDRQVTv9poeh HTTP/1.1" 200 -
+2025-12-06 16:23:49,958 - INFO - 127.0.0.1 - - [06/Dec/2025 16:23:49] "[36mGET /clientes?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-12-06 16:23:57,918 - INFO - 127.0.0.1 - - [06/Dec/2025 16:23:57] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 16:24:15,739 - INFO - 127.0.0.1 - - [06/Dec/2025 16:24:15] "[35m[1mGET /clientes HTTP/1.1[0m" 500 -
+2025-12-06 16:24:15,761 - INFO - 127.0.0.1 - - [06/Dec/2025 16:24:15] "[36mGET /clientes?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-12-06 16:24:15,763 - INFO - 127.0.0.1 - - [06/Dec/2025 16:24:15] "[36mGET /clientes?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-12-06 16:24:15,779 - INFO - 127.0.0.1 - - [06/Dec/2025 16:24:15] "[36mGET /clientes?__debugger__=yes&cmd=resource&f=console.png&s=kBogvsEksDRQVTv9poeh HTTP/1.1[0m" 304 -
+2025-12-06 16:24:15,791 - INFO - 127.0.0.1 - - [06/Dec/2025 16:24:15] "[36mGET /clientes?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-12-06 16:25:01,395 - INFO - 127.0.0.1 - - [06/Dec/2025 16:25:01] "GET /clientes/novo HTTP/1.1" 200 -
+2025-12-06 16:25:03,709 - INFO - 127.0.0.1 - - [06/Dec/2025 16:25:03] "GET /home HTTP/1.1" 200 -
+2025-12-06 16:27:13,769 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:13] "[35m[1mGET /home HTTP/1.1[0m" 500 -
+2025-12-06 16:27:13,783 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:13] "[36mGET /home?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-12-06 16:27:13,783 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:13] "[36mGET /home?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-12-06 16:27:13,791 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:13] "GET /home?__debugger__=yes&cmd=resource&f=console.png&s=kBogvsEksDRQVTv9poeh HTTP/1.1" 200 -
+2025-12-06 16:27:13,800 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:13] "[36mGET /home?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-12-06 16:27:21,966 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:21] "GET /home HTTP/1.1" 200 -
+2025-12-06 16:27:25,483 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:25] "GET /configuracoes HTTP/1.1" 200 -
+2025-12-06 16:27:28,356 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:28] "GET /usuarios HTTP/1.1" 200 -
+2025-12-06 16:27:44,820 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:44] "GET /home HTTP/1.1" 200 -
+2025-12-06 16:27:46,247 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:46] "GET /historico HTTP/1.1" 200 -
+2025-12-06 16:27:49,403 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:49] "GET /financeiro HTTP/1.1" 200 -
+2025-12-06 16:27:55,075 - INFO - 127.0.0.1 - - [06/Dec/2025 16:27:55] "GET /relatorios HTTP/1.1" 200 -
+2025-12-06 16:28:15,849 - INFO - 127.0.0.1 - - [06/Dec/2025 16:28:15] "GET /financeiro HTTP/1.1" 200 -
+2025-12-06 16:28:56,718 - INFO - 127.0.0.1 - - [06/Dec/2025 16:28:56] "GET /relatorios HTTP/1.1" 200 -
+2025-12-06 16:29:43,636 - INFO - 127.0.0.1 - - [06/Dec/2025 16:29:43] "GET /financeiro HTTP/1.1" 200 -
+2025-12-06 16:38:10,051 - INFO - 127.0.0.1 - - [06/Dec/2025 16:38:10] "GET /home HTTP/1.1" 200 -
+2025-12-06 16:38:13,178 - INFO - 127.0.0.1 - - [06/Dec/2025 16:38:13] "[35m[1mGET /financeiro HTTP/1.1[0m" 500 -
+2025-12-06 16:38:13,195 - INFO - 127.0.0.1 - - [06/Dec/2025 16:38:13] "[36mGET /financeiro?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-12-06 16:38:13,196 - INFO - 127.0.0.1 - - [06/Dec/2025 16:38:13] "[36mGET /financeiro?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-12-06 16:38:13,202 - INFO - 127.0.0.1 - - [06/Dec/2025 16:38:13] "GET /financeiro?__debugger__=yes&cmd=resource&f=console.png&s=kBogvsEksDRQVTv9poeh HTTP/1.1" 200 -
+2025-12-06 16:41:08,582 - INFO - 127.0.0.1 - - [06/Dec/2025 16:41:08] "GET /home HTTP/1.1" 200 -
+2025-12-06 16:41:11,463 - INFO - 127.0.0.1 - - [06/Dec/2025 16:41:11] "[35m[1mGET /financeiro HTTP/1.1[0m" 500 -
+2025-12-06 16:41:11,478 - INFO - 127.0.0.1 - - [06/Dec/2025 16:41:11] "[36mGET /financeiro?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-12-06 16:41:11,479 - INFO - 127.0.0.1 - - [06/Dec/2025 16:41:11] "[36mGET /financeiro?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-12-06 16:41:11,487 - INFO - 127.0.0.1 - - [06/Dec/2025 16:41:11] "[36mGET /financeiro?__debugger__=yes&cmd=resource&f=console.png&s=kBogvsEksDRQVTv9poeh HTTP/1.1[0m" 304 -
+2025-12-06 17:00:39,689 - INFO -  * Detected change in '/Users/ras/projeto_limpo/app.py', reloading
+2025-12-06 17:00:39,751 - INFO -  * Restarting with stat
+2025-12-06 17:07:44,940 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-06 17:07:44,941 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-06 17:07:44,941 - INFO -  * Restarting with stat
+2025-12-06 17:07:45,086 - WARNING -  * Debugger is active!
+2025-12-06 17:07:45,093 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 17:07:48,833 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-06 17:07:48,833 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-06 17:07:48,834 - INFO -  * Restarting with stat
+2025-12-06 17:07:48,987 - WARNING -  * Debugger is active!
+2025-12-06 17:07:48,992 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 17:07:52,707 - INFO - 127.0.0.1 - - [06/Dec/2025 17:07:52] "[35m[1mGET /financeiro HTTP/1.1[0m" 500 -
+2025-12-06 17:07:52,739 - INFO - 127.0.0.1 - - [06/Dec/2025 17:07:52] "[36mGET /financeiro?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-12-06 17:07:52,739 - INFO - 127.0.0.1 - - [06/Dec/2025 17:07:52] "[36mGET /financeiro?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-12-06 17:07:52,751 - INFO - 127.0.0.1 - - [06/Dec/2025 17:07:52] "GET /financeiro?__debugger__=yes&cmd=resource&f=console.png&s=q6QBQ7mZo5ZLNjPk92ut HTTP/1.1" 200 -
+2025-12-06 17:10:50,126 - INFO -  * Detected change in '/Users/ras/projeto_limpo/app.py', reloading
+2025-12-06 17:10:50,187 - INFO -  * Restarting with stat
+2025-12-06 17:10:50,424 - WARNING -  * Debugger is active!
+2025-12-06 17:10:50,430 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 17:10:55,209 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-06 17:10:55,209 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-06 17:10:55,209 - INFO -  * Restarting with stat
+2025-12-06 17:10:55,355 - WARNING -  * Debugger is active!
+2025-12-06 17:10:55,360 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 17:11:01,451 - INFO - 127.0.0.1 - - [06/Dec/2025 17:11:01] "[35m[1mGET /financeiro HTTP/1.1[0m" 500 -
+2025-12-06 17:11:01,477 - INFO - 127.0.0.1 - - [06/Dec/2025 17:11:01] "[36mGET /financeiro?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-12-06 17:11:01,477 - INFO - 127.0.0.1 - - [06/Dec/2025 17:11:01] "[36mGET /financeiro?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-12-06 17:11:01,484 - INFO - 127.0.0.1 - - [06/Dec/2025 17:11:01] "GET /financeiro?__debugger__=yes&cmd=resource&f=console.png&s=7QSFjx8VcObL8KaIm0mu HTTP/1.1" 200 -
+2025-12-06 17:11:23,610 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-06 17:11:23,610 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-06 17:11:23,610 - INFO -  * Restarting with stat
+2025-12-06 17:11:23,757 - WARNING -  * Debugger is active!
+2025-12-06 17:11:23,763 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 17:11:30,543 - INFO - 127.0.0.1 - - [06/Dec/2025 17:11:30] "[32mGET / HTTP/1.1[0m" 302 -
+2025-12-06 17:11:30,578 - INFO - 127.0.0.1 - - [06/Dec/2025 17:11:30] "GET /home HTTP/1.1" 200 -
+2025-12-06 17:11:34,125 - INFO - 127.0.0.1 - - [06/Dec/2025 17:11:34] "[35m[1mGET /financeiro HTTP/1.1[0m" 500 -
+2025-12-06 17:11:34,149 - INFO - 127.0.0.1 - - [06/Dec/2025 17:11:34] "[36mGET /financeiro?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-12-06 17:11:34,153 - INFO - 127.0.0.1 - - [06/Dec/2025 17:11:34] "[36mGET /financeiro?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-12-06 17:11:34,170 - INFO - 127.0.0.1 - - [06/Dec/2025 17:11:34] "GET /financeiro?__debugger__=yes&cmd=resource&f=console.png&s=obsQBTxeUrwuf9dV6sOa HTTP/1.1" 200 -
+2025-12-06 17:15:50,747 - INFO -  * Detected change in '/Users/ras/projeto_limpo/app.py', reloading
+2025-12-06 17:15:50,828 - INFO -  * Restarting with stat
+2025-12-06 17:15:51,058 - WARNING -  * Debugger is active!
+2025-12-06 17:15:51,063 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 17:15:54,101 - INFO -  * Detected change in '/Users/ras/projeto_limpo/app.py', reloading
+2025-12-06 17:15:54,144 - INFO -  * Restarting with stat
+2025-12-06 17:15:54,311 - WARNING -  * Debugger is active!
+2025-12-06 17:15:54,315 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 17:16:02,465 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-06 17:16:02,465 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-06 17:16:02,466 - INFO -  * Restarting with stat
+2025-12-06 17:16:02,611 - WARNING -  * Debugger is active!
+2025-12-06 17:16:02,617 - INFO -  * Debugger PIN: 113-328-257
+2025-12-06 17:16:06,457 - INFO - 127.0.0.1 - - [06/Dec/2025 17:16:06] "GET /financeiro HTTP/1.1" 200 -
+2025-12-06 17:17:24,465 - INFO - 127.0.0.1 - - [06/Dec/2025 17:17:24] "[32mPOST /relatorios HTTP/1.1[0m" 302 -
+2025-12-06 17:17:24,489 - INFO - 127.0.0.1 - - [06/Dec/2025 17:17:24] "GET /financeiro?active_tab=relatorios&relatorio_carregado=1&termo=&data_inicio=2025-12-01&hora_inicio=00:00&data_fim=2025-12-06&hora_fim=23:59&tipo_cliente=TODOS&forma_pagamento=TODOS HTTP/1.1" 200 -
+2025-12-06 17:17:37,356 - INFO - 127.0.0.1 - - [06/Dec/2025 17:17:37] "[32mGET /relatorios HTTP/1.1[0m" 302 -
+2025-12-06 17:17:37,383 - INFO - 127.0.0.1 - - [06/Dec/2025 17:17:37] "GET /financeiro?active_tab=relatorios HTTP/1.1" 200 -
+2025-12-06 17:17:53,385 - INFO - 127.0.0.1 - - [06/Dec/2025 17:17:53] "[32mPOST /relatorios HTTP/1.1[0m" 302 -
+2025-12-06 17:17:53,408 - INFO - 127.0.0.1 - - [06/Dec/2025 17:17:53] "GET /financeiro?active_tab=relatorios&relatorio_carregado=1&termo=&data_inicio=2025-12-01&hora_inicio=00:00&data_fim=2025-12-06&hora_fim=23:59&tipo_cliente=TODOS&forma_pagamento=TODOS HTTP/1.1" 200 -
+2025-12-06 17:18:54,656 - INFO - 127.0.0.1 - - [06/Dec/2025 17:18:54] "GET /financeiro HTTP/1.1" 200 -
+2025-12-06 17:18:57,758 - INFO - 127.0.0.1 - - [06/Dec/2025 17:18:57] "GET /usuarios HTTP/1.1" 200 -
+2025-12-06 17:19:04,458 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:04] "GET /clientes HTTP/1.1" 200 -
+2025-12-06 17:19:10,901 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:10] "GET /usuarios HTTP/1.1" 200 -
+2025-12-06 17:19:22,253 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:22] "[32mGET /logout HTTP/1.1[0m" 302 -
+2025-12-06 17:19:22,273 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:22] "GET /login HTTP/1.1" 200 -
+2025-12-06 17:19:22,334 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:22] "[33mGET /apple-touch-icon-precomposed.png HTTP/1.1[0m" 404 -
+2025-12-06 17:19:22,337 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:22] "[33mGET /apple-touch-icon.png HTTP/1.1[0m" 404 -
+2025-12-06 17:19:22,339 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:22] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-12-06 17:19:25,617 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:25] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-12-06 17:19:25,631 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:25] "GET /home HTTP/1.1" 200 -
+2025-12-06 17:19:25,662 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:25] "[33mGET /apple-touch-icon-precomposed.png HTTP/1.1[0m" 404 -
+2025-12-06 17:19:25,663 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:25] "[33mGET /apple-touch-icon.png HTTP/1.1[0m" 404 -
+2025-12-06 17:19:25,664 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:25] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-12-06 17:19:34,761 - INFO - 127.0.0.1 - - [06/Dec/2025 17:19:34] "GET /usuarios HTTP/1.1" 200 -
+2025-12-06 17:20:53,618 - INFO - 127.0.0.1 - - [06/Dec/2025 17:20:53] "GET /usuarios HTTP/1.1" 200 -
+2025-12-06 17:21:05,601 - INFO - 127.0.0.1 - - [06/Dec/2025 17:21:05] "GET /configuracoes HTTP/1.1" 200 -
+2025-12-06 17:22:24,067 - INFO - 127.0.0.1 - - [06/Dec/2025 17:22:24] "GET /historico HTTP/1.1" 200 -
+2025-12-06 17:22:25,782 - INFO - 127.0.0.1 - - [06/Dec/2025 17:22:25] "GET /home HTTP/1.1" 200 -
+2025-12-06 17:22:34,687 - INFO - 127.0.0.1 - - [06/Dec/2025 17:22:34] "GET /entrada HTTP/1.1" 200 -
+2025-12-06 17:22:36,507 - INFO - 127.0.0.1 - - [06/Dec/2025 17:22:36] "GET /estacionados HTTP/1.1" 200 -
+2025-12-06 17:23:27,817 - INFO - 127.0.0.1 - - [06/Dec/2025 17:23:27] "GET /configuracoes HTTP/1.1" 200 -
+2025-12-06 17:24:01,467 - INFO - 127.0.0.1 - - [06/Dec/2025 17:24:01] "GET /home HTTP/1.1" 200 -
+2025-12-06 17:24:05,097 - INFO - 127.0.0.1 - - [06/Dec/2025 17:24:05] "GET /estacionados HTTP/1.1" 200 -

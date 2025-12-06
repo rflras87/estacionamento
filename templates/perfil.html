@@ -1,39 +1,162 @@
 {% extends "base.html" %}
 
+
 {% block title %}Meu Perfil{% endblock %}
+
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white">
-                <h3 class="mb-0"><i class="bi bi-person-gear me-2"></i> Meu Perfil e Segurança</h3>
-            </div>
-            <div class="card-body">
-                <p>Usuário Logado: **{{ session.user_nome }}** (Perfil: {{ session.user_perfil }})</p>
-                <hr>
-                
-                <h5 class="card-title mb-3">Alterar Senha</h5>
-                <form method="POST" action="{{ url_for('perfil') }}">
-                    <div class="mb-3">
-                        <label for="senha_atual" class="form-label">Senha Atual</label>
-                        <input type="password" class="form-control" id="senha_atual" name="senha_atual" required autofocus>
-                    </div>
-                    <div class="mb-3">
-                        <label for="nova_senha" class="form-label">Nova Senha</label>
-                        <input type="password" class="form-control" id="nova_senha" name="nova_senha" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
-                        <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required>
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-warning btn-lg"><i class="bi bi-arrow-repeat me-2"></i> Alterar Senha</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+   <div class="col-md-7">
+       <div class="card shadow border-0">
+           <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+               <h4 class="mb-0"><i class="bi bi-person-gear me-2"></i> Meu Perfil e Segurança</h4>
+               <span class="badge bg-secondary">{{ session.user_perfil }}</span>
+           </div>
+           <div class="card-body p-4">
+              
+               <form method="POST" action="{{ url_for('perfil') }}" id="formPerfil" novalidate>
+                  
+                   <h5 class="text-primary mb-3 pb-2 border-bottom"><i class="bi bi-pencil-square me-1"></i> Dados Cadastrais</h5>
+
+
+                   <div class="mb-3">
+                       <label for="nome" class="form-label fw-bold">Nome Completo</label>
+                       <input type="text"
+                              class="form-control {% if session.user_perfil != 'ADMIN' %}bg-light text-muted{% endif %}"
+                              id="nome"
+                              name="nome"
+                              value="{{ usuario.nome }}"
+                              required
+                              {% if session.user_perfil != 'ADMIN' %}readonly title="Apenas a administração pode alterar o nome principal"{% endif %}>
+                       {% if session.user_perfil != 'ADMIN' %}
+                           <div class="form-text small"><i class="bi bi-lock-fill"></i> O nome principal só pode ser alterado pela administração.</div>
+                       {% endif %}
+                   </div>
+
+
+                   <div class="mb-4">
+                       <label for="username" class="form-label fw-bold">Login (Usuário de Acesso)</label>
+                       <div class="input-group">
+                           <span class="input-group-text bg-light"><i class="bi bi-person-badge"></i></span>
+                           <input type="text" class="form-control" id="username" name="username" value="{{ usuario.username }}" required>
+                       </div>
+                       <div class="form-text">Este é o nome utilizado para fazer login no sistema.</div>
+                   </div>
+                  
+                   <h5 class="text-danger mb-3 mt-4 pb-2 border-bottom"><i class="bi bi-shield-lock me-1"></i> Segurança</h5>
+                  
+                   <div class="alert alert-light border mb-3 p-2 small text-muted">
+                       <i class="bi bi-info-circle me-1"></i> Preencha os campos abaixo <strong>apenas se quiser alterar sua senha</strong>. Caso contrário, deixe em branco.
+                   </div>
+
+
+                   <div class="row">
+                       <div class="col-md-6 mb-3">
+                           <label for="nova_senha" class="form-label">Nova Senha</label>
+                           <input type="password" class="form-control" id="nova_senha" name="nova_senha" placeholder="Digite a nova senha">
+                       </div>
+                       <div class="col-md-6 mb-3 position-relative">
+                           <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+                          
+                           <input type="password"
+                                  class="form-control"
+                                  id="confirmar_senha"
+                                  name="confirmar_senha"
+                                  placeholder="Repita a nova senha"
+                                  data-bs-toggle="tooltip"
+                                  data-bs-placement="top"
+                                  data-bs-trigger="manual"
+                                  title="As senhas não conferem!">
+                                 
+                           <div class="invalid-feedback">
+                               As senhas digitadas não são iguais.
+                           </div>
+                       </div>
+                   </div>
+
+
+                   <hr class="my-4">
+
+
+                   <div class="bg-light p-3 rounded border">
+                       <label for="senha_atual" class="form-label fw-bold text-dark mb-1">
+                           <i class="bi bi-key-fill me-1"></i> Senha Atual
+                       </label>
+                       <div class="text-muted small mb-2">Para sua segurança, digite sua senha atual para salvar as alterações acima.</div>
+                      
+                       <input type="password" class="form-control form-control-lg" id="senha_atual" name="senha_atual" placeholder="Digite sua senha atual aqui..." required>
+                   </div>
+                  
+                   <div class="d-grid mt-4">
+                       <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                           <i class="bi bi-check-circle-fill me-2"></i> Salvar Alterações
+                       </button>
+                   </div>
+               </form>
+              
+           </div>
+       </div>
+   </div>
 </div>
+
+
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+       const novaSenha = document.getElementById('nova_senha');
+       const confirmarSenha = document.getElementById('confirmar_senha');
+       const senhaAtual = document.getElementById('senha_atual');
+      
+       // Inicializa o Tooltip do Bootstrap no campo de confirmação
+       const tooltipConfirmacao = new bootstrap.Tooltip(confirmarSenha, {
+           trigger: 'manual' // Só aparece quando mandarmos via JS
+       });
+
+
+       // Função que verifica se as senhas batem
+       function validarSenhas() {
+           const s1 = novaSenha.value;
+           const s2 = confirmarSenha.value;
+
+
+           // Só valida se ambos os campos tiverem algo escrito
+           if (s1 && s2) {
+               if (s1 !== s2) {
+                   // Senhas diferentes: Mostra erro e Tooltip
+                   confirmarSenha.classList.add('is-invalid');
+                   confirmarSenha.classList.remove('is-valid');
+                   tooltipConfirmacao.show();
+                  
+                   // Esconde o tooltip automaticamente após 3 segundos para não atrapalhar
+                   setTimeout(() => tooltipConfirmacao.hide(), 3000);
+               } else {
+                   // Senhas iguais: Tudo ok (Verde)
+                   confirmarSenha.classList.remove('is-invalid');
+                   confirmarSenha.classList.add('is-valid');
+                   tooltipConfirmacao.hide();
+               }
+           } else if (!s1 && !s2) {
+               // Se limpou os campos, remove as cores
+               confirmarSenha.classList.remove('is-invalid');
+               confirmarSenha.classList.remove('is-valid');
+               tooltipConfirmacao.hide();
+           }
+       }
+
+
+       // 1. Aciona quando o usuário clica/entra no campo "Senha Atual"
+       senhaAtual.addEventListener('focus', validarSenhas);
+
+
+       // 2. Também aciona enquanto o usuário digita (para feedback imediato)
+       confirmarSenha.addEventListener('input', () => {
+           // Remove o erro enquanto digita para não ser chato
+           confirmarSenha.classList.remove('is-invalid');
+           tooltipConfirmacao.hide();
+       });
+      
+       // Valida ao sair do campo de confirmação
+       confirmarSenha.addEventListener('blur', validarSenhas);
+   });
+</script>
 {% endblock %}
+

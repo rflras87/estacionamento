@@ -38,6 +38,7 @@
 </div>
 
 <style>
+    /* CSS DO FINANCEIRO (MANTIDO) */
     .stat-card {
         position: relative;
         border-radius: 8px;
@@ -54,11 +55,40 @@
     .stat-card .card-value { font-size: 1.6rem; font-weight: 800; z-index: 2; }
     .stat-card .bg-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 3.5rem; opacity: 0.25; z-index: 1; }
 
-    /* Gradientes */
+    /* Gradientes (MANTIDO) */
     .bg-gradient-blue { background: linear-gradient(45deg, #2563eb, #3b82f6); }
     .bg-gradient-green { background: linear-gradient(45deg, #15803d, #22c55e); }
-    .bg-gradient-cyan { background: linear-gradient(45deg, #0891b2, #06b6d4); }
     .bg-gradient-yellow { background: linear-gradient(45deg, #ca8a04, #eab308); color: #fff; }
+
+
+    /* --- NOVO CSS ADICIONADO (Do Relatorios.html) --- */
+    /* Estilos de Tabela para Expansão (Relatório) */
+    .collapse.show td {
+        background-color: white !important;
+        padding-top: 8px; 
+        padding-bottom: 8px;
+        border-top: none !important; 
+        border-bottom: 1px solid #dee2e6; 
+    }
+    .collapse.show td:first-child { border-left: 3px solid #0d6efd !important; }
+    .collapse.show td:last-child { border-right: 3px solid #0d6efd !important; }
+    .tr-last-of-group td { border-bottom: 3px solid #0d6efd !important; }
+    .col-md-1 input[type="text"] { max-width: 70px; }
+    .collapse.multi-{{ outer_index }}:focus { outline: none !important; box-shadow: none !important; }
+    .table-secondary { border-top: 1px solid #dee2e6 !important; }
+    .tr-detail { border-top: none !important; }
+    
+    /* Cabeçalho de Filtros Escuro (Relatório) */
+    .filter-header-dark {
+        background-color: #1f2937; /* Cinza escuro/Preto */
+        color: #ffffff;
+        border-bottom: none;
+    }
+
+    /* Gradientes (Adicionado para garantir que o Relatório os tenha) */
+    .bg-gradient-cyan { background: linear-gradient(45deg, #0891b2, #06b6d4); }
+
+
 </style>
 
 <div class="card shadow">
@@ -69,6 +99,9 @@
             <li class="nav-item"><button class="nav-link {% if active_tab == 'car' %}active{% endif %}" onclick="switchTab('car')" id="car-tab">A Receber</button></li>
             <li class="nav-item"><button class="nav-link {% if active_tab == 'cap' %}active{% endif %}" onclick="switchTab('cap')" id="cap-tab">A Pagar</button></li>
             <li class="nav-item"><button class="nav-link {% if active_tab == 'caixa' %}active{% endif %}" onclick="switchTab('caixa')" id="caixa-tab">Histórico Caixas</button></li>
+            
+            {# NOVO: ABA RELATÓRIOS #}
+            <li class="nav-item"><button class="nav-link {% if active_tab == 'relatorios' %}active{% endif %}" onclick="switchTab('relatorios')" id="relatorios-tab">Relatórios</button></li>
         </ul>
     </div>
     
@@ -193,7 +226,6 @@
             </div>
 
             <div id="vendas" class="tab-pane {% if active_tab == 'vendas' %}d-block{% else %}d-none{% endif %}">
-                {# NOVO FORMULÁRIO COM LÓGICA FILTRAR/LIMPAR #}
                 {% set is_filtered_vendas = vendas_ini or vendas_fim %}
                 <form method="POST" action="{{ url_for('financeiro') }}" id="form-vendas" class="mb-3 bg-light p-3 rounded border">
                     <input type="hidden" name="active_tab" value="vendas">
@@ -275,8 +307,6 @@
             </div>
 
             <div id="car" class="tab-pane {% if active_tab == 'car' %}d-block{% else %}d-none{% endif %}">
-                
-                {# NOVO RESUMO CONDICIONAL - A RECEBER #}
                 {% if car_status == 'TODOS' %}
                     {# VISUALIZAÇÃO 1: DIVIDIDA (Quando STATUS é TODOS) #}
                     <div class="row mb-3 g-2 align-items-center bg-light p-3 rounded border">
@@ -387,8 +417,6 @@
             </div>
 
             <div id="cap" class="tab-pane {% if active_tab == 'cap' %}d-block{% else %}d-none{% endif %}">
-                
-                {# NOVO RESUMO CONDICIONAL - A PAGAR #}
                 {% if cap_status == 'TODOS' %}
                     {# VISUALIZAÇÃO 1: DIVIDIDA (Quando STATUS é TODOS) #}
                     <div class="row mb-3 g-2 align-items-center bg-light p-3 rounded border">
@@ -491,14 +519,13 @@
                                     </div>
                                 </td>
                             </tr>
-                            <div class="modal fade" id="modalEditDesp{{ d.id }}" tabindex="-1"><div class="modal-dialog"><form method="POST" action="{{ url_for('editar_despesa', id=d.id) }}"><div class="modal-content"><div class="modal-header bg-warning"><h5>Editar</h5></div><div class="modal-body"><input type="text" class="form-control mb-2" name="descricao" value="{{ d.descricao }}"><input type="number" step="0.01" class="form-control mb-2" name="valor" value="{{ d.valor }}"><input type="date" class="form-control mb-2" name="vencimento" value="{{ d.data_vencimento }}"><select class="form-select mb-2" name="categoria"><option value="Contas">Contas</option><option value="Aluguel">Aluguel</option></select><textarea class="form-control mb-2" name="observacao">{{ d.observacao }}</textarea></div><div class="modal-footer"><button type="submit" class="btn btn-warning">Salvar</button></div></div></form></div></div>
+                            <div class="modal fade" id="modalEditDesp{{ d.id }}" tabindex="-1"><div class="modal-dialog"><form method="POST" action="{{ url_for('editar_despesa', id=d.id) }}"><div class="modal-content"><div class="modal-header bg-warning"><h5>Editar</h5></div><div class="modal-body"><input type="text" class="form-control mb-2" name="descricao" value="{{ d.descricao }}"><input type="number" step="0.01" class="form-control mb-2" name="valor" value="{{ d.valor }}"><input type="date" class="form-control mb-2" name="vencimento" value="{{ d.data_vencimento }}"><select class="form-select mb-2" name="categoria"><option>Contas</option><option value="Aluguel">Aluguel</option></select><textarea class="form-control mb-2" name="observacao" placeholder="Obs"></textarea></div><div class="modal-footer"><button type="submit" class="btn btn-warning">Salvar</button></div></div></form></div></div>
                         {% else %}<tr><td colspan="5" class="text-center text-muted">Nenhuma despesa encontrada.</td></tr>{% endfor %}</tbody>
                     </table>
                 </div>
             </div>
 
             <div id="caixa" class="tab-pane {% if active_tab == 'caixa' %}d-block{% else %}d-none{% endif %}">
-                {# NOVO FORMULÁRIO COM LÓGICA FILTRAR/LIMPAR #}
                 {% set is_filtered_caixa = caixa_ini|default('') and caixa_ini != '1900-01-01' or caixa_fim|default('') or caixa_op != 'TODOS' %}
                 <form method="POST" action="{{ url_for('financeiro') }}" id="form-caixa" class="mb-3 bg-light p-3 rounded border">
                     <input type="hidden" name="active_tab" value="caixa">
@@ -530,6 +557,190 @@
                     </table>
                 </div>
             </div>
+            
+            
+            {# NOVO: CONTEÚDO DA ABA RELATÓRIOS #}
+            <div id="relatorios" class="tab-pane {% if active_tab == 'relatorios' %}d-block{% else %}d-none{% endif %}">
+                <div class="d-flex align-items-center mb-4 mt-3">
+                    <i class="bi bi-check2-circle text-dark me-3" style="font-size: 3rem;"></i>
+                    <div>
+                        <h2 class="fw-bold mb-0">Relatório de Tickets Pagos</h2>
+                        <small class="text-muted">Visão detalhada de transações financeiras</small>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4 border-0">
+                    <div class="card-header filter-header-dark py-3">
+                        <h5 class="mb-0 d-flex align-items-center">
+                            <i class="bi bi-funnel-fill me-2"></i> Filtros & Pesquisa
+                        </h5>
+                    </div>
+                    <div class="card-body bg-light">
+                        <form method="POST" action="{{ url_for('relatorios') }}">
+                            <input type="hidden" name="active_tab" value="relatorios"> <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold small text-muted">Pesquisar (Placa, Nome ou Ticket)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                                        <input type="text" class="form-control border-start-0 ps-0" name="termo" value="{{ filtro_termo }}" placeholder="Digite Placa, Nome ou Número do Ticket...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-2">
+                                    <label class="form-label small text-muted fw-bold">Data Início</label>
+                                    <input type="date" class="form-control" name="data_inicio" value="{{ filtro_inicio_date or '' }}">
+                                </div>
+                                <div class="col-md-1" style="max-width: 95px;">
+                                    <label class="form-label small text-muted fw-bold">Hora</label>
+                                    <input type="text" class="form-control" name="hora_inicio" value="{{ filtro_hora_inicio or '' }}" placeholder="00:00" style="width: 100%;" maxlength="5">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small text-muted fw-bold">Data Fim</label>
+                                    <input type="date" class="form-control" name="data_fim" value="{{ filtro_fim_date or '' }}">
+                                </div>
+                                <div class="col-md-1" style="max-width: 95px;">
+                                    <label class="form-label small text-muted fw-bold">Hora</label>
+                                    <input type="text" class="form-control" name="hora_fim" value="{{ filtro_hora_fim or '' }}" placeholder="23:59" style="width: 100%;" maxlength="5">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small text-muted fw-bold">Tipo de Cliente</label>
+                                    <select class="form-select" name="tipo_cliente">
+                                        <option value="TODOS" {% if filtro_tipo == 'TODOS' %}selected{% endif %}>Todos</option>
+                                        <option value="AVULSO" {% if filtro_tipo == 'AVULSO' %}selected{% endif %}>Avulsos</option>
+                                        <option value="MENSALISTA" {% if filtro_tipo == 'MENSALISTA' %}selected{% endif %}>Mensalistas</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small text-muted fw-bold">Pagamento</label>
+                                    <select class="form-select" name="forma_pagamento">
+                                        <option value="TODOS" {% if filtro_pgto == 'TODOS' %}selected{% endif %}>Todas</option>
+                                        <option value="Tolerância" {% if filtro_pgto == 'Tolerância' %}selected{% endif %}>Isento / Tolerância</option>
+                                        {% for f in formas_pagamento %}
+                                            <option value="{{ f.nome }}" {% if filtro_pgto == f.nome %}selected{% endif %}>{{ f.nome }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2 d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary w-50"><i class="bi bi-filter me-1"></i> Filtrar</button>
+                                    <a href="{{ url_for('relatorios') }}" class="btn btn-outline-secondary w-50">Limpar</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card bg-gradient-blue">
+                            <div class="card-label">Total Geral</div>
+                            <div class="card-value">R$ {{ '%.2f' | format(total_geral) }}</div>
+                            <i class="bi bi-graph-up-arrow bg-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="stat-card bg-gradient-green">
+                            <div class="card-label">Dinheiro</div>
+                            <div class="card-value">R$ {{ '%.2f' | format(totais_pgto.get('Dinheiro', 0)) }}</div>
+                            <i class="bi bi-cash-stack bg-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="stat-card bg-gradient-cyan">
+                            <div class="card-label">Pix</div>
+                            <div class="card-value">R$ {{ '%.2f' | format(totais_pgto.get('Pix', 0)) }}</div>
+                            <i class="bi bi-qr-code-scan bg-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="stat-card bg-gradient-yellow">
+                            <div class="card-label">Cartão</div>
+                            {% set total_cartao = totais_pgto.get('Cartão de Débito', 0) + totais_pgto.get('Cartão de Crédito', 0) + totais_pgto.get('Cartão', 0) %}
+                            <div class="card-value">R$ {{ '%.2f' | format(total_cartao) }}</div>
+                            <i class="bi bi-credit-card-2-front bg-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow">
+                    <div class="card-header bg-dark text-white"><h5 class="mb-0">Detalhamento</h5></div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light"><tr><th style="width: 15%;">Ticket / Ref</th><th style="width: 25%;">Veículo / Cliente</th><th style="width: 30%;">Saída / Resumo</th><th style="width: 15%;">Pagamento</th><th style="width: 15%;" class="text-end pe-4">Valor</th></tr></thead>
+                            <tbody id="tabelaRelatorios">
+                                {% for placa, dados in dados_agrupados.items() %}
+                                    {% set outer_index = loop.index %}
+                                    {% if dados.tickets | length > 1 %}
+                                        <tr class="table-secondary border-top"><td class="ps-4"><span class="badge bg-primary"><i class="bi bi-folder-fill me-1"></i> MÚLTIPLOS</span></td><td><strong>{{ dados.placa }}</strong><br><small class="{{ 'text-primary fw-bold' if dados.tipo_cliente == 'MENSALISTA' else 'text-muted' }}">{{ dados.nome_cliente }}</small></td><td><button class="btn btn-sm btn-light border shadow-sm w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target=".multi-{{ outer_index }}" aria-expanded="false" onclick="this.closest('tr').classList.toggle('active-group')"><i class="bi bi-chevron-down me-2"></i> Ver {{ dados.tickets | length }} acessos</button></td><td>{% if dados.tipo_cliente == 'MENSALISTA' %}<span class="badge bg-secondary">Mensalista</span>{% else %}<span class="badge bg-info text-dark">Vários</span>{% endif %}</td><td class="text-end fw-bold pe-4">R$ {{ '%.2f' | format(dados.total_pago_periodo) }}</td></tr>
+                                        
+                                        {% for t in dados.tickets %}
+                                        {% set is_last_row = loop.last %}
+                                        <tr class="collapse multi-{{ outer_index }} bg-white tr-detail {% if is_last_row %}tr-last-of-group{% endif %}">
+                                            <td class="ps-4"><span class="font-monospace text-muted small border rounded px-1 bg-light ms-4">{{ t.ticket }}</span></td><td colspan="1"></td>
+                                            
+                                            <td class="small py-2">
+                                                {% if t.valor > 0 and t.status_visual == 'Mensalista' %}
+                                                    <span class="text-success fw-bold"><i class="bi bi-cash-coin"></i> Renovação Mensalidade</span>
+                                                {% else %}
+                                                    <div class="d-flex flex-column">
+                                                        <span><i class="bi bi-arrow-right-circle-fill text-success me-2"></i> {{ t.entrada }}</span>
+                                                        <div class="d-flex align-items-center">
+                                                            <span><i class="bi bi-arrow-left-circle-fill text-danger me-2"></i> {{ t.saida }}</span>
+                                                            {% if t.divergencia %}
+                                                                <span class="ms-2 badge bg-warning text-dark" title="Divergência: Tipo cobrado ({{ t.tipo_cobrado }}) difere do cadastro ({{ t.tipo_cadastrado }})">
+                                                                    <i class="bi bi-exclamation-triangle-fill"></i> Auditoria
+                                                                </span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                            
+                                            <td>{% if t.status_visual == 'Tolerância' %}<span class="badge bg-secondary">TOLERÂNCIA</span>{% elif t.valor > 0 and t.status_visual == 'Mensalista' %}{% if t.pgto %}<span class="badge bg-success">PAGO ({{ t.pgto }})</span>{% else %}<span class="badge bg-success">PAGO</span>{% endif %}{% elif 'Dinheiro' in t.pgto %}<span class="badge bg-success"><i class="bi bi-cash-coin me-1"></i> Dinheiro</span>{% elif 'Pix' in t.pgto %}<span class="badge bg-info text-dark"><i class="bi bi-qr-code me-1"></i> Pix</span>{% elif 'Cartão' in t.pgto %}<span class="badge bg-warning text-dark"><i class="bi bi-credit-card me-1"></i> Cartão</span>{% else %}<span class="badge bg-warning text-dark">{{ t.pgto }}</span>{% endif %}</td>
+                                            <td class="text-end text-muted pe-4">R$ {{ '%.2f' | format(t.valor) }}</td>
+                                        </tr>
+                                        {% endfor %}
+
+                                    {% else %}
+                                        {% set t = dados.tickets[0] %}
+                                        <tr class="border-top">
+                                            <td class="ps-4"><span class="badge bg-light text-dark border">{{ t.ticket }}</span></td>
+                                            <td><strong>{{ dados.placa }}</strong><br><small class="{{ 'text-primary fw-bold' if dados.tipo_cliente == 'MENSALISTA' else 'text-muted' }}">{{ dados.nome_cliente }}</small></td>
+                                            
+                                            <td class="small py-2">
+                                                {% if t.valor > 0 and (t.ticket.startswith('MEN') or t.status_visual == 'Mensalista') %}
+                                                    <span class="text-success fw-bold"><i class="bi bi-cash-coin"></i> Renovação Mensalidade</span><br><small class="text-muted">Pagamento Recebido</small>
+                                                {% else %}
+                                                    <div class="d-flex flex-column">
+                                                        <span><i class="bi bi-arrow-right-circle-fill text-success me-2"></i> {{ t.entrada }}</span>
+                                                        <div class="d-flex align-items-center">
+                                                            <span><i class="bi bi-arrow-left-circle-fill text-danger me-2"></i> {{ t.saida }}</span>
+                                                            {% if t.divergencia %}
+                                                                <span class="ms-2 badge bg-warning text-dark" title="Divergência: Tipo cobrado ({{ t.tipo_cobrado }}) difere do cadastro ({{ t.tipo_cadastrado }})">
+                                                                    <i class="bi bi-exclamation-triangle-fill"></i> Auditoria
+                                                                </span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                            
+                                            <td>{% if t.status_visual == 'Tolerância' %}<span class="badge bg-secondary">TOLERÂNCIA</span>{% elif 'Dinheiro' in t.pgto %}<span class="badge bg-success"><i class="bi bi-cash-coin me-1"></i> Dinheiro</span>{% elif 'Pix' in t.pgto %}<span class="badge bg-info text-dark"><i class="bi bi-qr-code me-1"></i> Pix</span>{% elif 'Cartão' in t.pgto %}<span class="badge bg-warning text-dark"><i class="bi bi-credit-card me-1"></i> Cartão</span>{% elif t.valor > 0 and (t.ticket.startswith('MEN') or t.status_visual == 'Mensalista') %}{% if t.pgto %}<span class="badge bg-success">PAGO ({{ t.pgto }})</span>{% else %}<span class="badge bg-success">PAGO</span>{% endif %}{% else %}<span class="badge bg-secondary">ISENTO</span>{% endif %}</td>
+                                            <td class="text-end fw-bold text-success pe-4">R$ {{ '%.2f' | format(t.valor) }}</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            
         </div>
     </div>
 </div>
@@ -545,7 +756,8 @@
         'vendas': { ini: 'vendas_ini', fim: 'vendas_fim', select: null },
         'car': { ini: 'car_ini', fim: 'car_fim', select: 'car_status' },
         'cap': { ini: 'cap_ini', fim: 'cap_fim', select: 'cap_status' },
-        'caixa': { ini: 'caixa_ini', fim: 'caixa_fim', select: 'caixa_op' }
+        'caixa': { ini: 'caixa_ini', fim: 'caixa_fim', select: 'caixa_op' },
+        'relatorios': { ini: 'data_inicio', fim: 'data_fim', select: null } // NOVO: Para incluir no setup
     };
 
     // Valores padrão para detecção de filtro ativo no JS (devem corresponder aos do app.py)
@@ -566,6 +778,11 @@
         const select = selectStatusId ? document.getElementById(selectStatusId) : null;
         const tabela = document.getElementById(tabelaId);
         
+        // Ignora o filtro JS para a nova tabela de Relatórios (usará filtro do servidor)
+        if (tabelaId === 'tabelaRelatorios') {
+             return; 
+        }
+
         if (!tabela || !input) return;
 
         const linhas = tabela.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
@@ -577,8 +794,8 @@
             for (let i = 0; i < linhas.length; i++) {
                 const linha = linhas[i];
                 
-                // Ignora linhas que são cabeçalhos ou divisores
-                if (linha.children.length < 3) continue; 
+                // Ignora linhas que são cabeçalhos ou divisores (e linhas de detalhe expandidas)
+                if (linha.children.length < 3 || linha.classList.contains('collapse')) continue; 
                 
                 const texto = linha.innerText.toLowerCase();
                 
@@ -624,6 +841,7 @@
         const inputFim = document.getElementById(config.fim);
         const selectElement = config.select ? document.getElementById(config.select) : null;
         
+        // Ignora abas sem o botão híbrido (Relatórios não o tem)
         if (!btn || !inputIni || !inputFim) return;
 
         // 1. Checa a filtragem de datas: Se os campos de data estão preenchidos OU são diferentes dos padrões de busca histórica
@@ -670,8 +888,6 @@
             if (selectElement && aba === 'caixa') {
                 selectElement.value = 'TODOS'; 
             }
-
-            // O status (car/cap) não é resetado aqui, mantendo o último filtro de status ativo.
             
             form.submit(); 
         } else {
@@ -690,6 +906,9 @@
             const inputFim = document.getElementById(config.fim);
             const selectElement = config.select ? document.getElementById(config.select) : null;
             const btn = document.getElementById(`btn-${aba}`);
+            
+            // Ignora abas sem o botão híbrido
+            if (!btn) return;
 
             // Listener para datas: se o botão é Limpar e a data é alterada, reverte para Filtrar
             if (inputIni) {
@@ -817,7 +1036,11 @@
         const urlParams = new URLSearchParams(window.location.search);
         const tab = urlParams.get('tab');
         
-        if (tab) {
+        // Se houver parâmetro 'active_tab' na URL após um POST de filtro do Relatório, use-o
+        const urlActiveTab = urlParams.get('active_tab');
+        if (urlActiveTab) {
+             switchTab(urlActiveTab);
+        } else if (tab) {
             switchTab(tab); 
         }
         

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Logs de Auditoria</h2>
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Data/Hora</th>
+                <th>Usuário</th>
+                <th>Ação</th>
+                <th>Detalhes</th>
+                <th>IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.id }}</td>
+                <td>{{ log.data_hora|format_datetime }}</td>
+                <td>{{ log.usuario_nome }}</td>
+                <td><span class="badge bg-secondary">{{ log.acao }}</span></td>
+                <td>{{ log.detalhes }}</td>
+                <td>{{ log.ip }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
